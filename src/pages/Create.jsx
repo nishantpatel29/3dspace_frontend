@@ -5,14 +5,19 @@ import { Separator } from '../components/ui/separator'
 import { Input } from '../components/ui/input'
 import { Badge } from '../components/ui/badge'
 import { ScrollArea } from '../components/ui/scroll-area'
-import { Square, Undo, Redo, Grid3X3, ZoomIn, ZoomOut, Save, Download, Settings, Search, Home, Bed, ChefHat, Sofa, Lamp, Table, BookOpen, X, Menu, Eye, EyeOff, RotateCw, Trash2, MousePointer, BedSingle as Rectangle, DoorOpen, Maximize, Layers, Ruler, FolderOpen, Plus, Minus, Move, Edit3, Paintbrush, FileText, Monitor, Box } from 'lucide-react'
+import { Square, Undo, Redo, Grid3X3, ZoomIn, ZoomOut, Save, Download, Search, Home, Bed, ChefHat, Sofa, Lamp, Table, BookOpen, X, Menu, Eye, EyeOff, RotateCw, Trash2, MousePointer, BedSingle as Rectangle, DoorOpen, Maximize, Layers, Ruler, FolderOpen, Plus, Minus, Move, Edit3, Paintbrush, FileText, Monitor, Box } from 'lucide-react'
+import { toast } from 'react-toastify'
+import designFilesAPI from '../apis/designFiles'
 import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, Grid as DreiGrid, Box as DreiBox, Plane as DreiPlane, Environment, ContactShadows } from '@react-three/drei'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { authAPI } from '../apis/auth'
-
+import CreateToolbar from '../components/create/CreateToolbar'
+import LeftPanel from '../components/create/LeftPanel'
+import RightPanel from '../components/create/RightPanel'
+  
 // File Management Dialog
 function FileDialog({ isOpen, onClose, onNew, onOpen }) {
   if (!isOpen) return null
@@ -498,6 +503,32 @@ function DraggableCatalogCard({ item, onAdd, children }) {
 export default function Create() {
   // File Management
   const [showFileDialog, setShowFileDialog] = useState(false)
+  const [currentFile, setCurrentFile] = useState({ id: null, name: 'Untitled' })
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [showOpenDialog, setShowOpenDialog] = useState(false)
+  const [fileForm, setFileForm] = useState({ name: '', description: '' })
+  const [filesList, setFilesList] = useState([])
+  const [filesLoading, setFilesLoading] = useState(false)
+  const [filesError, setFilesError] = useState('')
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState({ id: null, name: '' })
+
+  const fetchFilesList = useCallback(async () => {
+    try {
+      setFilesLoading(true)
+      setFilesError('')
+      const res = await designFilesAPI.list()
+      if (res && res.success) {
+        setFilesList(res.data || [])
+      } else {
+        setFilesError(res?.message || 'Failed to load files')
+      }
+    } catch (e) {
+      setFilesError('Failed to load files')
+    } finally {
+      setFilesLoading(false)
+    }
+  }, [])
   
   // UI State
   const [activeMode, setActiveMode] = useState('2D')
@@ -897,92 +928,150 @@ export default function Create() {
         onNew={handleNewProject}
         onOpen={handleOpenProject}
       />
-    <div className="pt-16 h-screen flex bg-gray-900 overflow-hidden">
-      {/* Left Panel - Tools & Layers */}
-      <div className={`${leftPanelOpen ? 'w-72 md:w-80' : 'w-0 md:w-16'} bg-gray-950 border-r border-gray-800 flex flex-col transition-all duration-300 relative`}>
-        <div className="p-3 md:p-4 border-b border-gray-800 flex-shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className={`text-lg font-semibold text-white ${!leftPanelOpen && 'hidden'}`}>Design Tools</h2>
-            <Button variant="ghost" size="sm" onClick={() => setLeftPanelOpen(!leftPanelOpen)} className="text-gray-400 hover:text-white">{leftPanelOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</Button>
+      {showSaveDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-96 max-w-md mx-4">
+            <h2 className="text-xl font-semibold text-white mb-4">Save Design</h2>
+            <div className="space-y-3">
+              <Input type="text" placeholder="Name" value={fileForm.name} onChange={(e) => setFileForm(f => ({ ...f, name: e.target.value }))} className="bg-gray-800 border-gray-700 text-white" />
+              <Input type="text" placeholder="Description (optional)" value={fileForm.description} onChange={(e) => setFileForm(f => ({ ...f, description: e.target.value }))} className="bg-gray-800 border-gray-700 text-white" />
+              <div className="flex gap-2 pt-2">
+                <Button className="bg-green-600 hover:bg-green-700" onClick={async () => {
+                  const payload = {
+                    name: (fileForm.name || '').trim() || 'Untitled',
+                    description: (fileForm.description || '').trim(),
+                    sceneData: { elements: drawingElements, furniture: placedFurniture, settings: { mode: activeMode, zoomLevel, gridVisible, showMeasurements } },
+                  }
+                  try {
+                    if (currentFile.id) {
+                      const res = await designFilesAPI.update(currentFile.id, payload)
+                      if (res.success) { setCurrentFile({ id: res.data._id, name: res.data.name }); setShowSaveDialog(false); toast.success('Saved successfully') }
+                    } else {
+                      const res = await designFilesAPI.create(payload)
+                      if (res.success) { setCurrentFile({ id: res.data._id, name: res.data.name }); setShowSaveDialog(false); toast.success('Saved successfully') }
+                    }
+                  } catch (e) { toast.error('Save failed') }
+                }}>Save</Button>
+                <Button variant="outline" className="border-gray-700 text-gray-300" onClick={() => setShowSaveDialog(false)}>Cancel</Button>
+              </div>
+            </div>
           </div>
-          {leftPanelOpen && (
-            <div className="flex bg-gray-800 rounded-lg p-1 mb-4">
-              <Button variant={activeMode === '2D' ? 'default' : 'ghost'} size="sm" className="flex-1 text-xs sm:text-sm" onClick={() => setActiveMode('2D')}><Monitor className="h-4 w-4 mr-1" />2D</Button>
-              <Button variant={activeMode === '3D' ? 'default' : 'ghost'} size="sm" className="flex-1 text-xs sm:text-sm" onClick={() => setActiveMode('3D')}><Box className="h-4 w-4 mr-1" />3D</Button>
-            </div>
-          )}
         </div>
-        {leftPanelOpen && (
-          <ScrollArea className="flex-1">
-            <div className="p-3 md:p-4 space-y-4">
-              {/* Tools Section */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-400 mb-2">
-                  {activeMode === '2D' ? 'Drawing Tools' : '3D Tools'}
-                </h3>
-                <div className="space-y-1">
-                  {currentTools.map(tool => {
-                    const Icon = tool.icon
-                    return (
-                      <Button 
-                        key={tool.id} 
-                        variant={selectedTool === tool.id ? 'default' : 'ghost'} 
-                        size="sm" 
-                        className={`w-full justify-start text-xs sm:text-sm ${selectedTool === tool.id ? '' : 'text-white'}`} 
-                        onClick={() => setSelectedTool(tool.id)}
-                      >
-                        <Icon className="h-4 w-4 mr-2" />{tool.name}
-                      </Button>
-                    )
-                  })}
-                </div>
-              </div>
-              <Separator />
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Templates</h3>
-                <div className="space-y-2">
-                  {templates.map(t => (
-                    <Button key={t.id} variant="outline" size="sm" className="w-full justify-start text-xs sm:text-sm" onClick={() => loadTemplate(t.id)}>
-                      {t.name}
+      )}
+      {showOpenDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-[28rem] max-w-[90vw] mx-4">
+            <h2 className="text-xl font-semibold text-white mb-4">Open Design</h2>
+            <div className="max-h-80 overflow-y-auto space-y-2">
+              {filesLoading && (
+                <div className="text-gray-400 text-sm">Loading files...</div>
+              )}
+              {!!filesError && (
+                <div className="text-red-400 text-sm">{filesError}</div>
+              )}
+              {!filesLoading && !filesError && filesList.length === 0 && (
+                <div className="text-gray-400 text-sm">No files found.</div>
+              )}
+              {filesList.map(file => (
+                <div key={file._id} className="flex items-center justify-between glass-panel p-3 rounded border border-gray-700">
+                  <div className="min-w-0 pr-3">
+                    <div className="text-white text-sm truncate" title={file.name}>{file.name}</div>
+                    <div className="text-gray-400 text-xs truncate" title={file.description || ''}>{file.description || '—'}</div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Button size="sm" variant="outline" className="border-gray-700 text-gray-300" onClick={async () => {
+                      try {
+                        const res = await designFilesAPI.get(file._id)
+                        if (res.success) {
+                          const data = res.data
+                          setDrawingElements(data.sceneData?.elements || [])
+                          setPlacedFurniture(data.sceneData?.furniture || [])
+                          setSelectedFurniture(null)
+                          setSelectedWallId(null)
+                          setCurrentFile({ id: data._id, name: data.name })
+                          setShowOpenDialog(false)
+                        }
+                      } catch (e) {}
+                    }}>Open</Button>
+                    <Button size="sm" variant="outline" title="Delete" className="border-red-500 text-red-400 hover:bg-red-500 hover:text-white p-2" onClick={() => {
+                      setDeleteTarget({ id: file._id, name: file.name })
+                      setShowDeleteDialog(true)
+                    }}>
+                      <Trash2 className="h-4 w-4" />
                     </Button>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </ScrollArea>
-        )}
-      </div>
+            <div className="flex gap-2 pt-4 justify-end">
+              <Button variant="outline" className="border-gray-700 text-gray-300" onClick={() => setShowOpenDialog(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-96 max-w-md mx-4">
+            <h2 className="text-xl font-semibold text-white mb-2">Delete file</h2>
+            <p className="text-gray-300 mb-4 text-sm">Are you sure you want to delete <span className="text-white font-medium">{deleteTarget.name || 'this file'}</span>? This action cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" className="border-gray-700 text-gray-300" onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
+              <Button className="bg-red-600 hover:bg-red-700" onClick={async () => {
+                try {
+                  const res = await designFilesAPI.remove(deleteTarget.id)
+                  if (res.success) {
+                    toast.success('Deleted successfully')
+                    setShowDeleteDialog(false)
+                    fetchFilesList()
+                    if (currentFile.id === deleteTarget.id) {
+                      setCurrentFile({ id: null, name: 'Untitled' })
+                    }
+                  } else {
+                    toast.error(res.message || 'Delete failed')
+                  }
+                } catch (e) {
+                  toast.error('Delete failed')
+                }
+              }}>Delete</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    <div className="pt-16 h-screen flex bg-gray-900 overflow-hidden">
+      <LeftPanel 
+        leftPanelOpen={leftPanelOpen}
+        toggleLeftPanel={() => setLeftPanelOpen(!leftPanelOpen)}
+        activeMode={activeMode}
+        setActiveMode={setActiveMode}
+        currentTools={currentTools}
+        selectedTool={selectedTool}
+        setSelectedTool={setSelectedTool}
+        templates={templates}
+        loadTemplate={loadTemplate}
+        MonitorIcon={Monitor}
+        BoxIcon={Box}
+      />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="h-16 bg-gray-950 border-b border-gray-800 flex items-center px-4 gap-2 overflow-x-auto flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="default" onClick={undo} disabled={historyIndex <= 0} title="Undo"><Undo className="h-5 w-5" /></Button>
-            <Button variant="outline" size="default" onClick={redo} disabled={historyIndex >= history.length - 1} title="Redo"><Redo className="h-5 w-5" /></Button>
-          </div>
-          <Separator orientation="vertical" className="h-8" />
-          <div className="flex items-center gap-2">
-            <Button variant={gridVisible ? 'default' : 'outline'} size="default" onClick={() => setGridVisible(!gridVisible)} title="Toggle Grid"><Grid3X3 className="h-5 w-5" /></Button>
-            {activeMode === '2D' && (
-              <Button variant={showMeasurements ? 'default' : 'outline'} size="default" onClick={() => setShowMeasurements(!showMeasurements)} title="Measurements"><Ruler className="h-5 w-5" /></Button>
-            )}
-          </div>
-          {activeMode === '2D' && (
-            <>
-              <Separator orientation="vertical" className="h-8" />
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="default" onClick={() => setZoomLevel(z => Math.max(25, z - 25))} title="Zoom Out"><ZoomOut className="h-5 w-5" /></Button>
-                <span className="text-sm text-gray-400 min-w-[60px] text-center">{zoomLevel}%</span>
-                <Button variant="outline" size="default" onClick={() => setZoomLevel(z => Math.min(400, z + 25))} title="Zoom In"><ZoomIn className="h-5 w-5" /></Button>
-              </div>
-            </>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="default" title="Save"><Save className="h-5 w-5" /></Button>
-            <Button variant="outline" size="default" onClick={() => setShowFileDialog(true)}><span className="hidden md:inline">+ New</span><span className="md:hidden">New</span></Button>
-            <Button className="bg-green-600 hover:bg-green-700" size="default" onClick={exportDesign}><Download className="h-5 w-5 mr-2" /><span className="hidden md:inline">Download</span></Button>
-          </div>
-        </div>
+        <CreateToolbar
+          currentFile={currentFile}
+          undo={undo}
+          redo={redo}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
+          activeMode={activeMode}
+          gridVisible={gridVisible}
+          setGridVisible={setGridVisible}
+          showMeasurements={showMeasurements}
+          setShowMeasurements={setShowMeasurements}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          onSaveClick={() => { setFileForm({ name: currentFile?.name || 'Untitled', description: '' }); setShowSaveDialog(true) }}
+          onNewClick={() => { newDesign(); setCurrentFile({ id: null, name: 'Untitled' }) }}
+          onOpenClick={() => { setShowOpenDialog(true); fetchFilesList() }}
+          onExportClick={exportDesign}
+        />
         <div className="flex-1 bg-gray-900 relative overflow-hidden">
           {activeMode === '2D' ? (
             <div className="absolute inset-0">
@@ -1039,135 +1128,23 @@ export default function Create() {
         </div>
       </div>
       
-      {/* Right Panel - Properties & Furniture Catalog */}
-      <div className={`${rightPanelOpen ? 'w-72 md:w-80' : 'w-0 md:w-16'} bg-gray-950 border-l border-gray-800 flex flex-col transition-all duration-300 relative`}>
-        <div className="p-3 md:p-4 border-b border-gray-800 flex-shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className={`text-lg font-semibold text-white ${!rightPanelOpen && 'hidden'}`}>Properties</h2>
-            <Button variant="ghost" size="sm" onClick={() => setRightPanelOpen(!rightPanelOpen)} className="text-gray-400 hover:text-white">{rightPanelOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</Button>
-          </div>
-        </div>
-        {rightPanelOpen && (
-          <ScrollArea className="flex-1">
-            <div className="p-3 md:p-4 space-y-4">
-              {/* Furniture Catalog */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Furniture Catalog</h3>
-                <div className="mb-3">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                      type="text" 
-                      placeholder="Search furniture..." 
-                      value={searchTerm} 
-                      onChange={(e) => setSearchTerm(e.target.value)} 
-                      className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-green-400 text-sm" 
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {categories.map(category => (
-                    <Button 
-                      key={category} 
-                      variant={selectedCategory === category ? 'default' : 'outline'} 
-                      size="sm" 
-                      onClick={() => setSelectedCategory(category)} 
-                      className={`text-xs ${selectedCategory === category ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                    >
-                      {category}
-                    </Button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-                  {filteredFurniture.map(item => (
-                    <DraggableCatalogCard key={item.id} item={item} onAdd={() => addFurniture(item.id)}>
-                      <CardContent className="p-2">
-                        <div className="aspect-square bg-gray-800 rounded mb-2 flex items-center justify-center overflow-hidden">
-                          {item.category === 'Seating' && <Sofa className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
-                          {item.category === 'Tables' && <Table className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
-                          {item.category === 'Lighting' && <Lamp className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
-                          {item.category === 'Storage' && <BookOpen className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
-                          {item.category === 'Bedroom' && <Bed className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
-                          {!['Seating', 'Tables', 'Lighting', 'Storage', 'Bedroom'].includes(item.category) && <Home className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
-                        </div>
-                        <p className="text-xs text-white font-medium truncate">{item.name}</p>
-                        {/* price removed */}
-                      </CardContent>
-                    </DraggableCatalogCard>
-                  ))}
-                </div>
-                {filteredFurniture.length === 0 && (
-                  <div className="text-center text-gray-400 mt-4">
-                    <p className="text-sm">No furniture found</p>
-                  </div>
-                )}
-              </div>
-              
-              <Separator />
-              
-              {/* Selected Item Properties */}
-              {selectedFurnitureItem && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Selected Item</h3>
-                  <div className="space-y-3">
-                    <p className="text-white text-sm font-medium">{selectedFurnitureItem.name}</p>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        type="color" 
-                        value={selectedFurnitureItem.color} 
-                        onChange={(e) => handleFurnitureColorChange(selectedFurnitureItem.id, e.target.value)} 
-                        className="w-10 h-10 p-1 bg-gray-800 border-gray-700" 
-                      />
-                      <Input 
-                        type="text" 
-                        value={selectedFurnitureItem.color} 
-                        onChange={(e) => handleFurnitureColorChange(selectedFurnitureItem.id, e.target.value)} 
-                        className="flex-1 bg-gray-800 border-gray-700 text-white text-xs" 
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => rotateSelectedFurniture()} className="flex-1 bg-transparent">
-                        <RotateCw className="h-4 w-4 mr-1" />Rotate
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => deleteSelectedFurniture()} className="flex-1 bg-transparent">
-                        <Trash2 className="h-4 w-4 mr-1" />Delete
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Wall Properties */}
-              {selectedTool === 'select' && selectedWallId && (
-                <>
-                  <Separator />
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400 mb-2">Wall Properties</h3>
-                    <div className="space-y-3">
-                      <p className="text-xs text-gray-400">Click a wall on canvas, then change color.</p>
-                      <div className="flex items-center gap-2">
-                        <Input 
-                          type="color" 
-                          value={(drawingElements.find(e => e.id === selectedWallId)?.color) || '#666666'} 
-                          onChange={(e) => selectedWallId && handleWallColorChange(selectedWallId, e.target.value)} 
-                          className="w-10 h-10 p-1 bg-gray-800 border-gray-700" 
-                        />
-                        <Input 
-                          type="text" 
-                          value={(drawingElements.find(e => e.id === selectedWallId)?.color) || ''} 
-                          onChange={(e) => selectedWallId && handleWallColorChange(selectedWallId, e.target.value)} 
-                          placeholder="#666666" 
-                          className="flex-1 bg-gray-800 border-gray-700 text-white text-xs" 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </ScrollArea>
-        )}
-      </div>
+      <RightPanel
+        rightPanelOpen={rightPanelOpen}
+        toggleRightPanel={() => setRightPanelOpen(!rightPanelOpen)}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        filteredFurniture={filteredFurniture}
+        addFurniture={addFurniture}
+        selectedFurnitureItem={selectedFurnitureItem}
+        handleFurnitureColorChange={handleFurnitureColorChange}
+        selectedTool={selectedTool}
+        selectedWallId={selectedWallId}
+        drawingElements={drawingElements}
+        handleWallColorChange={handleWallColorChange}
+      />
       
     </div>
     </DndProvider>
