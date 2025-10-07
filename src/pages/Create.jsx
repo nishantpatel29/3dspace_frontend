@@ -17,7 +17,7 @@ import { authAPI } from '../apis/auth'
 import CreateToolbar from '../components/create/CreateToolbar'
 import LeftPanel from '../components/create/LeftPanel'
 import RightPanel from '../components/create/RightPanel'
-  
+
 // File Management Dialog
 function FileDialog({ isOpen, onClose, onNew, onOpen }) {
   if (!isOpen) return null
@@ -580,87 +580,200 @@ export default function Create() {
   
   const templates = useMemo(() => ([
     {
-      id: 'studio-basic',
-      name: 'Studio (Basic)',
+      id: 'minimalist-studio',
+      name: 'Minimalist Studio',
+      description: 'Clean, modern studio with essential furniture',
       elements: [
-        { id: 'w1', type: 'wall', color: '#666666', completed: true, points: [{ x: -4, y: -3 }, { x: 4, y: -3 }] },
-        { id: 'w2', type: 'wall', color: '#666666', completed: true, points: [{ x: 4, y: -3 }, { x: 4, y: 3 }] },
-        { id: 'w3', type: 'wall', color: '#666666', completed: true, points: [{ x: 4, y: 3 }, { x: -4, y: 3 }] },
-        { id: 'w4', type: 'wall', color: '#666666', completed: true, points: [{ x: -4, y: 3 }, { x: -4, y: -3 }] },
+        { id: 'w1', type: 'wall', color: '#E8E8E8', completed: true, points: [{ x: -5, y: -4 }, { x: 5, y: -4 }] },
+        { id: 'w2', type: 'wall', color: '#E8E8E8', completed: true, points: [{ x: 5, y: -4 }, { x: 5, y: 4 }] },
+        { id: 'w3', type: 'wall', color: '#E8E8E8', completed: true, points: [{ x: 5, y: 4 }, { x: -5, y: 4 }] },
+        { id: 'w4', type: 'wall', color: '#E8E8E8', completed: true, points: [{ x: -5, y: 4 }, { x: -5, y: -4 }] },
       ],
       furniture: [
-        { id: `tmpl-sofa-${Date.now()}`, name: 'Modern Sofa', category: 'Seating', price: 1299, color: '#8B4513', type: 'Modern Sofa', position: { x: 0, y: 0, z: 1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-table-${Date.now()}`, name: 'Coffee Table', category: 'Tables', price: 599, color: '#D2691E', type: 'Coffee Table', position: { x: 0, y: 0, z: 0.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }
+        { id: `tmpl-bed-${Date.now()}-1`, name: 'Platform Bed', category: 'Bedroom', price: 799, color: '#2C2C2C', type: 'Bed Frame', position: { x: -2.5, y: 0, z: 2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.2, y: 1, z: 1.2 } },
+        { id: `tmpl-desk-${Date.now()}-2`, name: 'Work Desk', category: 'Tables', price: 549, color: '#4A4A4A', type: 'Desk', position: { x: 3, y: 0, z: -2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `tmpl-chair-${Date.now()}-3`, name: 'Office Chair', category: 'Seating', price: 299, color: '#1A1A1A', type: 'Dining Chair', position: { x: 3, y: 0, z: -1.2 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `tmpl-shelf-${Date.now()}-4`, name: 'Wall Shelf', category: 'Storage', price: 399, color: '#D4C5B9', type: 'Bookshelf', position: { x: -4, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1, z: 0.8 } }
       ]
     },
     {
-      id: 'bedroom-small',
-      name: 'Bedroom (Small)',
+      id: 'tropical-paradise',
+      name: 'Tropical Paradise Lounge',
+      description: 'Vibrant tropical-inspired space with bold colors',
       elements: [
-        { id: 'bw1', type: 'wall', color: '#666666', completed: true, points: [{ x: -3, y: -3 }, { x: 3, y: -3 }] },
-        { id: 'bw2', type: 'wall', color: '#666666', completed: true, points: [{ x: 3, y: -3 }, { x: 3, y: 3 }] },
-        { id: 'bw3', type: 'wall', color: '#666666', completed: true, points: [{ x: 3, y: 3 }, { x: -3, y: 3 }] },
-        { id: 'bw4', type: 'wall', color: '#666666', completed: true, points: [{ x: -3, y: 3 }, { x: -3, y: -3 }] },
+        { id: 'tp1', type: 'wall', color: '#FFF8DC', completed: true, points: [{ x: -7, y: -6 }, { x: 7, y: -6 }] },
+        { id: 'tp2', type: 'wall', color: '#FFF8DC', completed: true, points: [{ x: 7, y: -6 }, { x: 7, y: 6 }] },
+        { id: 'tp3', type: 'wall', color: '#FFF8DC', completed: true, points: [{ x: 7, y: 6 }, { x: -7, y: 6 }] },
+        { id: 'tp4', type: 'wall', color: '#FFF8DC', completed: true, points: [{ x: -7, y: 6 }, { x: -7, y: -6 }] },
       ],
       furniture: [
-        { id: `tmpl-bed-${Date.now()}`, name: 'Bed Frame', category: 'Bedroom', price: 899, color: '#8B4513', type: 'Bed Frame', position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-lamp-${Date.now()}`, name: 'Floor Lamp', category: 'Lighting', price: 299, color: '#FFD700', type: 'Floor Lamp', position: { x: 2, y: 0, z: 2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }
+        { id: `tmpl-trop1-${Date.now()}-1`, name: 'Peacock Chair', category: 'Seating', price: 899, color: '#D2691E', type: 'Armchair', position: { x: -3, y: 0, z: 3 }, rotation: { x: 0, y: -Math.PI / 6, z: 0 }, scale: { x: 1.3, y: 1.3, z: 1.3 } },
+        { id: `tmpl-trop2-${Date.now()}-2`, name: 'Rattan Sofa', category: 'Seating', price: 1599, color: '#CD853F', type: 'Modern Sofa', position: { x: 2, y: 0, z: 3.5 }, rotation: { x: 0, y: Math.PI / 8, z: 0 }, scale: { x: 1.5, y: 1, z: 1.2 } },
+        { id: `tmpl-trop3-${Date.now()}-3`, name: 'Bamboo Coffee Table', category: 'Tables', price: 549, color: '#DEB887', type: 'Coffee Table', position: { x: 0, y: 0, z: 1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.3, y: 1, z: 1.3 } },
+        { id: `tmpl-trop4-${Date.now()}-4`, name: 'Palm Plant Stand', category: 'Decor', price: 199, color: '#228B22', type: 'Floor Lamp', position: { x: -5.5, y: 0, z: 4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.5, z: 0.8 } },
+        { id: `tmpl-trop5-${Date.now()}-5`, name: 'Monstera Plant', category: 'Decor', price: 149, color: '#2E8B57', type: 'Floor Lamp', position: { x: 5.5, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.3, z: 0.7 } },
+        { id: `tmpl-trop6-${Date.now()}-6`, name: 'Wicker Bar Cart', category: 'Storage', price: 449, color: '#BC8F8F', type: 'Side Table', position: { x: 5, y: 0, z: 2 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 0.9, y: 1.2, z: 0.9 } },
+        { id: `tmpl-trop7-${Date.now()}-7`, name: 'Macrame Wall Hanging', category: 'Decor', price: 129, color: '#F5F5DC', type: 'Bookshelf', position: { x: 0, y: 1.5, z: -5.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 0.6, z: 0.3 } },
+        { id: `tmpl-trop8-${Date.now()}-8`, name: 'Tiki Torch Lamp', category: 'Lighting', price: 279, color: '#DAA520', type: 'Floor Lamp', position: { x: -5, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.4, z: 0.7 } }
       ]
     },
     {
-      id: 'living-dining-large',
-      name: 'Living + Dining (Large)',
+      id: 'industrial-loft',
+      name: 'Industrial Loft',
+      description: 'Raw and edgy with exposed brick aesthetic',
       elements: [
-        { id: 'ld1', type: 'wall', color: '#666666', completed: true, points: [{ x: -8, y: -6 }, { x: 8, y: -6 }] },
-        { id: 'ld2', type: 'wall', color: '#666666', completed: true, points: [{ x: 8, y: -6 }, { x: 8, y: 6 }] },
-        { id: 'ld3', type: 'wall', color: '#666666', completed: true, points: [{ x: 8, y: 6 }, { x: -8, y: 6 }] },
-        { id: 'ld4', type: 'wall', color: '#666666', completed: true, points: [{ x: -8, y: 6 }, { x: -8, y: -6 }] },
+        { id: 'il1', type: 'wall', color: '#8B4513', completed: true, points: [{ x: -8, y: -6 }, { x: 8, y: -6 }] },
+        { id: 'il2', type: 'wall', color: '#8B4513', completed: true, points: [{ x: 8, y: -6 }, { x: 8, y: 6 }] },
+        { id: 'il3', type: 'wall', color: '#8B4513', completed: true, points: [{ x: 8, y: 6 }, { x: -8, y: 6 }] },
+        { id: 'il4', type: 'wall', color: '#8B4513', completed: true, points: [{ x: -8, y: 6 }, { x: -8, y: -6 }] },
       ],
       furniture: [
-        { id: `tmpl-sofa2-${Date.now()}`, name: 'Modern Sofa', category: 'Seating', price: 1299, color: '#8B4513', type: 'Modern Sofa', position: { x: -3, y: 0, z: 2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1, z: 1.2 } },
-        { id: `tmpl-arm-${Date.now()}`, name: 'Armchair', category: 'Seating', price: 799, color: '#A0522D', type: 'Armchair', position: { x: -5, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-cof-${Date.now()}`, name: 'Coffee Table', category: 'Tables', price: 599, color: '#D2691E', type: 'Coffee Table', position: { x: -3, y: 0, z: 0.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1, z: 1.2 } },
-        { id: `tmpl-desk-${Date.now()}`, name: 'Desk', category: 'Tables', price: 699, color: '#8B4513', type: 'Desk', position: { x: 4, y: 0, z: -1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-sidet-${Date.now()}`, name: 'Side Table', category: 'Tables', price: 299, color: '#D2691E', type: 'Side Table', position: { x: -1, y: 0, z: 2.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-lamp2-${Date.now()}`, name: 'Floor Lamp', category: 'Lighting', price: 299, color: '#FFD700', type: 'Floor Lamp', position: { x: -6, y: 0, z: 5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }
+        { id: `tmpl-ind1-${Date.now()}-1`, name: 'Leather Chesterfield', category: 'Seating', price: 2199, color: '#654321', type: 'Modern Sofa', position: { x: -3, y: 0, z: 2 }, rotation: { x: 0, y: -Math.PI / 4, z: 0 }, scale: { x: 1.6, y: 1.1, z: 1.4 } },
+        { id: `tmpl-ind2-${Date.now()}-2`, name: 'Metal Coffee Table', category: 'Tables', price: 899, color: '#2F4F4F', type: 'Coffee Table', position: { x: -1, y: 0, z: -0.5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 1.4, y: 0.8, z: 1.4 } },
+        { id: `tmpl-ind3-${Date.now()}-3`, name: 'Industrial Bar Stool', category: 'Seating', price: 349, color: '#696969', type: 'Dining Chair', position: { x: 5, y: 0, z: -3 }, rotation: { x: 0, y: Math.PI / 3, z: 0 }, scale: { x: 0.9, y: 1.2, z: 0.9 } },
+        { id: `tmpl-ind4-${Date.now()}-4`, name: 'Bar Stool', category: 'Seating', price: 349, color: '#696969', type: 'Dining Chair', position: { x: 6.5, y: 0, z: -3 }, rotation: { x: 0, y: -Math.PI / 6, z: 0 }, scale: { x: 0.9, y: 1.2, z: 0.9 } },
+        { id: `tmpl-ind5-${Date.now()}-5`, name: 'Steel Pipe Shelving', category: 'Storage', price: 1299, color: '#36454F', type: 'Bookshelf', position: { x: -7, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.4, z: 1 } },
+        { id: `tmpl-ind6-${Date.now()}-6`, name: 'Factory Cart Table', category: 'Tables', price: 749, color: '#4A4A4A', type: 'Side Table', position: { x: 3, y: 0, z: 3 }, rotation: { x: 0, y: Math.PI / 5, z: 0 }, scale: { x: 1.1, y: 0.7, z: 1.1 } },
+        { id: `tmpl-ind7-${Date.now()}-7`, name: 'Edison Bulb Chandelier', category: 'Lighting', price: 599, color: '#FFD700', type: 'Floor Lamp', position: { x: 0, y: 2, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 0.8, z: 1.2 } },
+        { id: `tmpl-ind8-${Date.now()}-8`, name: 'Metal Locker Cabinet', category: 'Storage', price: 849, color: '#36454F', type: 'Wardrobe', position: { x: 7, y: 0, z: 3 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.8, y: 1.2, z: 1 } },
+        { id: `tmpl-ind9-${Date.now()}-9`, name: 'Vintage Desk Lamp', category: 'Lighting', price: 229, color: '#B8860B', type: 'Floor Lamp', position: { x: 3, y: 0.8, z: 3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 0.5, z: 0.5 } }
       ]
     },
     {
-      id: 'open-kitchen-diner',
-      name: 'Open Kitchen Diner',
+      id: 'zen-meditation',
+      name: 'Zen Meditation Room',
+      description: 'Tranquil minimalist space for mindfulness',
       elements: [
-        { id: 'ok1', type: 'wall', color: '#666666', completed: true, points: [{ x: -7, y: -4 }, { x: 7, y: -4 }] },
-        { id: 'ok2', type: 'wall', color: '#666666', completed: true, points: [{ x: 7, y: -4 }, { x: 7, y: 4 }] },
-        { id: 'ok3', type: 'wall', color: '#666666', completed: true, points: [{ x: 7, y: 4 }, { x: -7, y: 4 }] },
-        { id: 'ok4', type: 'wall', color: '#666666', completed: true, points: [{ x: -7, y: 4 }, { x: -7, y: -4 }] },
+        { id: 'zm1', type: 'wall', color: '#F5F5DC', completed: true, points: [{ x: -6, y: -6 }, { x: 6, y: -6 }] },
+        { id: 'zm2', type: 'wall', color: '#F5F5DC', completed: true, points: [{ x: 6, y: -6 }, { x: 6, y: 6 }] },
+        { id: 'zm3', type: 'wall', color: '#F5F5DC', completed: true, points: [{ x: 6, y: 6 }, { x: -6, y: 6 }] },
+        { id: 'zm4', type: 'wall', color: '#F5F5DC', completed: true, points: [{ x: -6, y: 6 }, { x: -6, y: -6 }] },
       ],
       furniture: [
-        { id: `tmpl-table6-${Date.now()}`, name: 'Desk', category: 'Tables', price: 699, color: '#8B4513', type: 'Desk', position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.5, y: 1, z: 1 } },
-        { id: `tmpl-chair1-${Date.now()}`, name: 'Dining Chair', category: 'Seating', price: 199, color: '#654321', type: 'Dining Chair', position: { x: -1.2, y: 0, z: -0.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-chair2-${Date.now()}`, name: 'Dining Chair', category: 'Seating', price: 199, color: '#654321', type: 'Dining Chair', position: { x: 1.2, y: 0, z: -0.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-chair3-${Date.now()}`, name: 'Dining Chair', category: 'Seating', price: 199, color: '#654321', type: 'Dining Chair', position: { x: -1.2, y: 0, z: 0.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-chair4-${Date.now()}`, name: 'Dining Chair', category: 'Seating', price: 199, color: '#654321', type: 'Dining Chair', position: { x: 1.2, y: 0, z: 0.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-books-${Date.now()}`, name: 'Bookshelf', category: 'Storage', price: 799, color: '#8B4513', type: 'Bookshelf', position: { x: -6, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }
+        { id: `tmpl-zen1-${Date.now()}-1`, name: 'Floor Cushion', category: 'Seating', price: 149, color: '#8B4513', type: 'Armchair', position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.4, z: 0.9 } },
+        { id: `tmpl-zen2-${Date.now()}-2`, name: 'Meditation Cushion', category: 'Seating', price: 129, color: '#D2691E', type: 'Armchair', position: { x: -2, y: 0, z: 1 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 0.8, y: 0.3, z: 0.8 } },
+        { id: `tmpl-zen3-${Date.now()}-3`, name: 'Low Tea Table', category: 'Tables', price: 399, color: '#A0826D', type: 'Coffee Table', position: { x: 3, y: 0, z: -2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 0.5, z: 1 } },
+        { id: `tmpl-zen4-${Date.now()}-4`, name: 'Bonsai Stand', category: 'Decor', price: 249, color: '#8B7355', type: 'Side Table', position: { x: -4, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 0.8, z: 0.6 } },
+        { id: `tmpl-zen5-${Date.now()}-5`, name: 'Bamboo Screen', category: 'Decor', price: 549, color: '#D4C5B9', type: 'Bookshelf', position: { x: 5, y: 0, z: 2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.5, y: 1.2, z: 0.2 } },
+        { id: `tmpl-zen6-${Date.now()}-6`, name: 'Stone Lantern', category: 'Lighting', price: 349, color: '#A9A9A9', type: 'Floor Lamp', position: { x: 4.5, y: 0, z: -4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.1, z: 0.7 } },
+        { id: `tmpl-zen7-${Date.now()}-7`, name: 'Minimalist Shelf', category: 'Storage', price: 299, color: '#C2A88A', type: 'Bookshelf', position: { x: -5.5, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 1, z: 1.2 } },
+        { id: `tmpl-zen8-${Date.now()}-8`, name: 'Paper Lamp', category: 'Lighting', price: 179, color: '#FFFAF0', type: 'Floor Lamp', position: { x: -3, y: 1.2, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 0.8, z: 0.8 } }
       ]
     },
     {
-      id: 'master-bedroom',
-      name: 'Master Bedroom (Large)',
+      id: 'art-deco-glam',
+      name: 'Art Deco Glamour',
+      description: 'Luxurious 1920s inspired elegant space',
       elements: [
-        { id: 'mb1', type: 'wall', color: '#666666', completed: true, points: [{ x: -6, y: -5 }, { x: 6, y: -5 }] },
-        { id: 'mb2', type: 'wall', color: '#666666', completed: true, points: [{ x: 6, y: -5 }, { x: 6, y: 5 }] },
-        { id: 'mb3', type: 'wall', color: '#666666', completed: true, points: [{ x: 6, y: 5 }, { x: -6, y: 5 }] },
-        { id: 'mb4', type: 'wall', color: '#666666', completed: true, points: [{ x: -6, y: 5 }, { x: -6, y: -5 }] },
+        { id: 'ad1', type: 'wall', color: '#2C1810', completed: true, points: [{ x: -7, y: -5 }, { x: 7, y: -5 }] },
+        { id: 'ad2', type: 'wall', color: '#2C1810', completed: true, points: [{ x: 7, y: -5 }, { x: 7, y: 5 }] },
+        { id: 'ad3', type: 'wall', color: '#2C1810', completed: true, points: [{ x: 7, y: 5 }, { x: -7, y: 5 }] },
+        { id: 'ad4', type: 'wall', color: '#2C1810', completed: true, points: [{ x: -7, y: 5 }, { x: -7, y: -5 }] },
       ],
       furniture: [
-        { id: `tmpl-bed2-${Date.now()}`, name: 'Bed Frame', category: 'Bedroom', price: 899, color: '#8B4513', type: 'Bed Frame', position: { x: 0, y: 0, z: 1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.5, y: 1, z: 1.5 } },
-        { id: `tmpl-side-${Date.now()}`, name: 'Side Table', category: 'Tables', price: 299, color: '#D2691E', type: 'Side Table', position: { x: -1.5, y: 0, z: 1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-side2-${Date.now()}`, name: 'Side Table', category: 'Tables', price: 299, color: '#D2691E', type: 'Side Table', position: { x: 1.5, y: 0, z: 1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-dresser-${Date.now()}`, name: 'Dresser', category: 'Storage', price: 899, color: '#8B4513', type: 'Dresser', position: { x: -4.5, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-        { id: `tmpl-wardrobe-${Date.now()}`, name: 'Wardrobe', category: 'Storage', price: 1199, color: '#696969', type: 'Wardrobe', position: { x: 4.5, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }
+        { id: `tmpl-deco1-${Date.now()}-1`, name: 'Velvet Sofa', category: 'Seating', price: 2899, color: '#8B008B', type: 'Modern Sofa', position: { x: 0, y: 0, z: 2.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.7, y: 1.1, z: 1.3 } },
+        { id: `tmpl-deco2-${Date.now()}-2`, name: 'Gold Mirror Table', category: 'Tables', price: 1299, color: '#FFD700', type: 'Coffee Table', position: { x: 0, y: 0, z: -0.5 }, rotation: { x: 0, y: Math.PI / 8, z: 0 }, scale: { x: 1.3, y: 0.7, z: 1.3 } },
+        { id: `tmpl-deco3-${Date.now()}-3`, name: 'Peacock Armchair', category: 'Seating', price: 1499, color: '#006994', type: 'Armchair', position: { x: -4.5, y: 0, z: -1 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        { id: `tmpl-deco4-${Date.now()}-4`, name: 'Geometric Armchair', category: 'Seating', price: 1499, color: '#8B7355', type: 'Armchair', position: { x: 4.5, y: 0, z: -1 }, rotation: { x: 0, y: -Math.PI / 4, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        { id: `tmpl-deco5-${Date.now()}-5`, name: 'Brass Bar Cart', category: 'Storage', price: 899, color: '#B8860B', type: 'Side Table', position: { x: -6, y: 0, z: 3.5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 0.8, y: 1.1, z: 0.8 } },
+        { id: `tmpl-deco6-${Date.now()}-6`, name: 'Crystal Chandelier', category: 'Lighting', price: 1899, color: '#E0FFFF', type: 'Floor Lamp', position: { x: 0, y: 2.2, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.3, y: 1, z: 1.3 } },
+        { id: `tmpl-deco7-${Date.now()}-7`, name: 'Art Deco Cabinet', category: 'Storage', price: 1999, color: '#1C1C1C', type: 'Dresser', position: { x: 6, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1, y: 1.2, z: 1.1 } },
+        { id: `tmpl-deco8-${Date.now()}-8`, name: 'Marble Pedestal', category: 'Decor', price: 649, color: '#F8F8FF', type: 'Side Table', position: { x: -5, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 1.3, z: 0.6 } },
+        { id: `tmpl-deco9-${Date.now()}-9`, name: 'Gold Floor Lamp', category: 'Lighting', price: 799, color: '#DAA520', type: 'Floor Lamp', position: { x: 5, y: 0, z: 3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.3, z: 1 } }
       ]
-    }
-  ]), [])
+    },
+    {
+      id: 'bohemian-eclectic',
+      name: 'Bohemian Eclectic',
+      description: 'Colorful, artistic space with mixed patterns',
+      elements: [
+        { id: 'bo1', type: 'wall', color: '#F0E68C', completed: true, points: [{ x: -7, y: -6 }, { x: 7, y: -6 }] },
+        { id: 'bo2', type: 'wall', color: '#F0E68C', completed: true, points: [{ x: 7, y: -6 }, { x: 7, y: 6 }] },
+        { id: 'bo3', type: 'wall', color: '#F0E68C', completed: true, points: [{ x: 7, y: 6 }, { x: -7, y: 6 }] },
+        { id: 'bo4', type: 'wall', color: '#F0E68C', completed: true, points: [{ x: -7, y: 6 }, { x: -7, y: -6 }] },
+      ],
+      furniture: [
+        { id: `tmpl-boho1-${Date.now()}-1`, name: 'Vintage Sofa', category: 'Seating', price: 1299, color: '#CD5C5C', type: 'Modern Sofa', position: { x: -2, y: 0, z: 3 }, rotation: { x: 0, y: -Math.PI / 8, z: 0 }, scale: { x: 1.5, y: 1, z: 1.3 } },
+        { id: `tmpl-boho2-${Date.now()}-2`, name: 'Moroccan Pouf', category: 'Seating', price: 249, color: '#FF6347', type: 'Armchair', position: { x: 1, y: 0, z: 1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 0.5, z: 0.8 } },
+        { id: `tmpl-boho3-${Date.now()}-3`, name: 'Floor Pouf', category: 'Seating', price: 229, color: '#FF8C00', type: 'Armchair', position: { x: -1, y: 0, z: 0.5 }, rotation: { x: 0, y: Math.PI / 3, z: 0 }, scale: { x: 0.7, y: 0.5, z: 0.7 } },
+        { id: `tmpl-boho4-${Date.now()}-4`, name: 'Carved Wood Table', category: 'Tables', price: 649, color: '#8B4513', type: 'Coffee Table', position: { x: -1, y: 0, z: -1 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1.2, y: 1, z: 1.2 } },
+        { id: `tmpl-boho5-${Date.now()}-5`, name: 'Hanging Chair', category: 'Seating', price: 599, color: '#D2B48C', type: 'Armchair', position: { x: 5, y: 0.8, z: 2 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 1.1, y: 1.1, z: 1.1 } },
+        { id: `tmpl-boho6-${Date.now()}-6`, name: 'Vintage Trunk', category: 'Storage', price: 449, color: '#A0522D', type: 'Dresser', position: { x: 3, y: 0, z: -3 }, rotation: { x: 0, y: Math.PI / 5, z: 0 }, scale: { x: 1, y: 0.7, z: 0.8 } },
+        { id: `tmpl-boho7-${Date.now()}-7`, name: 'Patterned Rug Stand', category: 'Decor', price: 399, color: '#CD853F', type: 'Bookshelf', position: { x: -6, y: 0, z: -2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.2, y: 0.3, z: 1.5 } },
+        { id: `tmpl-boho8-${Date.now()}-8`, name: 'Potted Palm', category: 'Decor', price: 179, color: '#228B22', type: 'Floor Lamp', position: { x: -6, y: 0, z: 4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.4, z: 0.8 } },
+        { id: `tmpl-boho9-${Date.now()}-9`, name: 'String Lights', category: 'Lighting', price: 99, color: '#FFE4B5', type: 'Floor Lamp', position: { x: 0, y: 2, z: 5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2, y: 0.3, z: 0.3 } },
+        { id: `tmpl-boho10-${Date.now()}-10`, name: 'Floor Lamp', category: 'Lighting', price: 349, color: '#DAA520', type: 'Floor Lamp', position: { x: 5.5, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1.2, z: 0.9 } }
+      ]
+    },
+    {
+      id: 'futuristic-tech',
+      name: 'Futuristic Tech Hub',
+      description: 'Sleek high-tech workspace with neon accents',
+      elements: [
+        { id: 'ft1', type: 'wall', color: '#1A1A2E', completed: true, points: [{ x: -8, y: -6 }, { x: 8, y: -6 }] },
+        { id: 'ft2', type: 'wall', color: '#1A1A2E', completed: true, points: [{ x: 8, y: -6 }, { x: 8, y: 6 }] },
+        { id: 'ft3', type: 'wall', color: '#1A1A2E', completed: true, points: [{ x: 8, y: 6 }, { x: -8, y: 6 }] },
+        { id: 'ft4', type: 'wall', color: '#1A1A2E', completed: true, points: [{ x: -8, y: 6 }, { x: -8, y: -6 }] },
+      ],
+      furniture: [
+        { id: `tmpl-tech1-${Date.now()}-1`, name: 'Gaming Desk', category: 'Tables', price: 1599, color: '#0F3460', type: 'Desk', position: { x: 0, y: 0, z: -3.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2, y: 1, z: 1.2 } },
+        { id: `tmpl-tech2-${Date.now()}-2`, name: 'Racing Chair', category: 'Seating', price: 899, color: '#E94560', type: 'Dining Chair', position: { x: 0, y: 0, z: -2.5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.1, y: 1.1, z: 1.1 } },
+        { id: `tmpl-tech3-${Date.now()}-3`, name: 'LED Shelf', category: 'Storage', price: 799, color: '#00D9FF', type: 'Bookshelf', position: { x: -7, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.3, z: 1 } },
+        { id: `tmpl-tech4-${Date.now()}-4`, name: 'Cable Management Station', category: 'Storage', price: 349, color: '#212121', type: 'Side Table', position: { x: 2, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1, z: 0.6 } },
+        { id: `tmpl-tech5-${Date.now()}-5`, name: 'Neon Strip Light', category: 'Lighting', price: 199, color: '#00FFF0', type: 'Floor Lamp', position: { x: 0, y: 1.5, z: -5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 3, y: 0.2, z: 0.2 } },
+        { id: `tmpl-tech6-${Date.now()}-6`, name: 'RGB Floor Lamp', category: 'Lighting', price: 449, color: '#FF006E', type: 'Floor Lamp', position: { x: -6, y: 0, z: 4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.5, z: 0.7 } },
+        { id: `tmpl-tech7-${Date.now()}-7`, name: 'Server Rack', category: 'Storage', price: 1299, color: '#2C2C2C', type: 'Wardrobe', position: { x: 7, y: 0, z: -2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.8, y: 1.4, z: 1 } },
+        { id: `tmpl-tech8-${Date.now()}-8`, name: 'Beanbag', category: 'Seating', price: 399, color: '#6C63FF', type: 'Armchair', position: { x: -4, y: 0, z: 3 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 1.2, y: 0.6, z: 1.2 } },
+        { id: `tmpl-tech9-${Date.now()}-9`, name: 'Monitor Stand', category: 'Tables', price: 249, color: '#0F3460', type: 'Side Table', position: { x: 0, y: 0.8, z: -3.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 0.3, z: 0.6 } },
+        { id: `tmpl-tech10-${Date.now()}-10`, name: 'LED Panel', category: 'Lighting', price: 549, color: '#8B00FF', type: 'Floor Lamp', position: { x: 7, y: 1.2, z: 2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1, y: 1, z: 0.1 } }
+      ]
+    },
+    {
+      id: 'coastal-breeze',
+      name: 'Coastal Breeze',
+      description: 'Light and airy beach house aesthetic',
+      elements: [
+        { id: 'cb1', type: 'wall', color: '#E0F7FA', completed: true, points: [{ x: -7, y: -6 }, { x: 7, y: -6 }] },
+        { id: 'cb2', type: 'wall', color: '#E0F7FA', completed: true, points: [{ x: 7, y: -6 }, { x: 7, y: 6 }] },
+        { id: 'cb3', type: 'wall', color: '#E0F7FA', completed: true, points: [{ x: 7, y: 6 }, { x: -7, y: 6 }] },
+        { id: 'cb4', type: 'wall', color: '#E0F7FA', completed: true, points: [{ x: -7, y: 6 }, { x: -7, y: -6 }] },
+      ],
+      furniture: [
+        { id: `tmpl-coast1-${Date.now()}-1`, name: 'Wicker Sofa', category: 'Seating', price: 1799, color: '#D4C5B9', type: 'Modern Sofa', position: { x: -2, y: 0, z: 3 }, rotation: { x: 0, y: -Math.PI / 8, z: 0 }, scale: { x: 1.6, y: 1, z: 1.3 } },
+        { id: `tmpl-coast2-${Date.now()}-2`, name: 'Driftwood Coffee Table', category: 'Tables', price: 899, color: '#A0826D', type: 'Coffee Table', position: { x: -1, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 1.4, y: 0.8, z: 1.4 } },
+        { id: `tmpl-coast3-${Date.now()}-3`, name: 'Adirondack Chair', category: 'Seating', price: 449, color: '#87CEEB', type: 'Armchair', position: { x: 4, y: 0, z: -1 }, rotation: { x: 0, y: -Math.PI / 3, z: 0 }, scale: { x: 1.1, y: 1, z: 1.1 } },
+        { id: `tmpl-coast4-${Date.now()}-4`, name: 'Rope Ottoman', category: 'Seating', price: 329, color: '#F5F5DC', type: 'Armchair', position: { x: 1, y: 0, z: -1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.6, z: 0.9 } },
+        { id: `tmpl-coast5-${Date.now()}-5`, name: 'Nautical Bookshelf', category: 'Storage', price: 749, color: '#FFFFFF', type: 'Bookshelf', position: { x: -6.5, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1.2, z: 0.9 } },
+        { id: `tmpl-coast6-${Date.now()}-6`, name: 'Shell Display Cabinet', category: 'Storage', price: 649, color: '#B0E0E6', type: 'Dresser', position: { x: 6, y: 0, z: 2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1, y: 1.1, z: 0.9 } },
+        { id: `tmpl-coast7-${Date.now()}-7`, name: 'Lantern Stand', category: 'Lighting', price: 279, color: '#FFE4B5', type: 'Floor Lamp', position: { x: -5, y: 0, z: 4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.2, z: 0.7 } },
+        { id: `tmpl-coast8-${Date.now()}-8`, name: 'Sea Grass Basket', category: 'Storage', price: 129, color: '#DEB887', type: 'Side Table', position: { x: 3, y: 0, z: 3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 0.8, z: 0.7 } },
+        { id: `tmpl-coast9-${Date.now()}-9`, name: 'Coral Sculpture', category: 'Decor', price: 199, color: '#FF7F50', type: 'Side Table', position: { x: -1, y: 0.8, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.6, z: 0.4 } },
+        { id: `tmpl-coast10-${Date.now()}-10`, name: 'Beach House Lamp', category: 'Lighting', price: 349, color: '#E0FFFF', type: 'Floor Lamp', position: { x: 5.5, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.3, z: 0.8 } }
+      ]
+    },
+    {
+      id: 'gothic-elegance',
+      name: 'Gothic Elegance',
+      description: 'Dark dramatic Victorian-inspired space',
+      elements: [
+        { id: 'go1', type: 'wall', color: '#301934', completed: true, points: [{ x: -7, y: -6 }, { x: 7, y: -6 }] },
+        { id: 'go2', type: 'wall', color: '#301934', completed: true, points: [{ x: 7, y: -6 }, { x: 7, y: 6 }] },
+        { id: 'go3', type: 'wall', color: '#301934', completed: true, points: [{ x: 7, y: 6 }, { x: -7, y: 6 }] },
+        { id: 'go4', type: 'wall', color: '#301934', completed: true, points: [{ x: -7, y: 6 }, { x: -7, y: -6 }] },
+      ],
+      furniture: [
+        { id: `tmpl-goth1-${Date.now()}-1`, name: 'Velvet Throne Chair', category: 'Seating', price: 1899, color: '#4B0082', type: 'Armchair', position: { x: 0, y: 0, z: 3.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.3, y: 1.4, z: 1.3 } },
+        { id: `tmpl-goth2-${Date.now()}-2`, name: 'Victorian Sofa', category: 'Seating', price: 2499, color: '#800020', type: 'Modern Sofa', position: { x: -3.5, y: 0, z: -1 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1.5, y: 1.1, z: 1.3 } },
+        { id: `tmpl-goth3-${Date.now()}-3`, name: 'Gothic Coffee Table', category: 'Tables', price: 1299, color: '#1C1C1C', type: 'Coffee Table', position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 8, z: 0 }, scale: { x: 1.4, y: 1, z: 1.4 } },
+        { id: `tmpl-goth4-${Date.now()}-4`, name: 'Ornate Bookcase', category: 'Storage', price: 1799, color: '#3E2723', type: 'Bookshelf', position: { x: -6.5, y: 0, z: 3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.1, y: 1.5, z: 1 } },
+        { id: `tmpl-goth5-${Date.now()}-5`, name: 'Candelabra Stand', category: 'Lighting', price: 599, color: '#C0C0C0', type: 'Floor Lamp', position: { x: -5, y: 0, z: -4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.4, z: 0.7 } },
+        { id: `tmpl-goth6-${Date.now()}-6`, name: 'Cathedral Mirror', category: 'Decor', price: 899, color: '#2F4F4F', type: 'Bookshelf', position: { x: 0, y: 1, z: -5.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.8, z: 0.2 } },
+        { id: `tmpl-goth7-${Date.now()}-7`, name: 'Antique Cabinet', category: 'Storage', price: 1999, color: '#2C1810', type: 'Wardrobe', position: { x: 6.5, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1, y: 1.3, z: 1.1 } },
+        { id: `tmpl-goth8-${Date.now()}-8`, name: 'Skull Sculpture', category: 'Decor', price: 349, color: '#FFFFF0', type: 'Side Table', position: { x: 0, y: 0.8, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 0.5, z: 0.5 } },
+        { id: `tmpl-goth9-${Date.now()}-9`, name: 'Chandelier', category: 'Lighting', price: 2199, color: '#1C1C1C', type: 'Floor Lamp', position: { x: 0, y: 2.3, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.4, y: 1.2, z: 1.4 } },
+        { id: `tmpl-goth10-${Date.now()}-10`, name: 'Wrought Iron Side Table', category: 'Tables', price: 649, color: '#36454F', type: 'Side Table', position: { x: 4.5, y: 0, z: 2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } }
+      ]
+    },]))
 
 
   useEffect(() => {
@@ -953,11 +1066,11 @@ export default function Create() {
                   } catch (e) { toast.error('Save failed') }
                 }}>Save</Button>
                 <Button variant="outline" className="border-gray-700 text-gray-300" onClick={() => setShowSaveDialog(false)}>Cancel</Button>
-              </div>
+          </div>
             </div>
           </div>
-        </div>
-      )}
+            </div>
+          )}
       {showOpenDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-[28rem] max-w-[90vw] mx-4">
@@ -977,7 +1090,7 @@ export default function Create() {
                   <div className="min-w-0 pr-3">
                     <div className="text-white text-sm truncate" title={file.name}>{file.name}</div>
                     <div className="text-gray-400 text-xs truncate" title={file.description || ''}>{file.description || '—'}</div>
-                  </div>
+        </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <Button size="sm" variant="outline" className="border-gray-700 text-gray-300" onClick={async () => {
                       try {
@@ -998,16 +1111,16 @@ export default function Create() {
                       setShowDeleteDialog(true)
                     }}>
                       <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                      </Button>
                 </div>
-              ))}
-            </div>
+              </div>
+                  ))}
+                </div>
             <div className="flex gap-2 pt-4 justify-end">
               <Button variant="outline" className="border-gray-700 text-gray-300" onClick={() => setShowOpenDialog(false)}>Close</Button>
+              </div>
             </div>
-          </div>
-        </div>
+      </div>
       )}
 
       {showDeleteDialog && (
@@ -1034,11 +1147,11 @@ export default function Create() {
                   toast.error('Delete failed')
                 }
               }}>Delete</Button>
-            </div>
           </div>
-        </div>
+          </div>
+          </div>
       )}
-    <div className="pt-16 h-screen flex bg-gray-900 overflow-hidden">
+    <div className="pt-16 h-screen flex bg-gray-900 overflow-hidden scroll-panel">
       <LeftPanel 
         leftPanelOpen={leftPanelOpen}
         toggleLeftPanel={() => setLeftPanelOpen(!leftPanelOpen)}
@@ -1140,6 +1253,8 @@ export default function Create() {
         addFurniture={addFurniture}
         selectedFurnitureItem={selectedFurnitureItem}
         handleFurnitureColorChange={handleFurnitureColorChange}
+        rotateSelectedFurniture={rotateSelectedFurniture}
+        deleteSelectedFurniture={deleteSelectedFurniture}
         selectedTool={selectedTool}
         selectedWallId={selectedWallId}
         drawingElements={drawingElements}

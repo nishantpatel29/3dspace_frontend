@@ -2,7 +2,7 @@
  import { Button } from '../../components/ui/button'
  import { ScrollArea } from '../../components/ui/scroll-area'
  import { Separator } from '../../components/ui/separator'
- import { Search, Sofa, Table, Lamp, BookOpen, Bed, Home } from 'lucide-react'
+import { Search, Sofa, Table, Lamp, BookOpen, Bed, Home, RotateCw, Trash2 } from 'lucide-react'
  import { Input } from '../../components/ui/input'
  import { Card, CardContent } from '../../components/ui/card'
 
@@ -26,6 +26,8 @@ export default function RightPanel({
   addFurniture,
   selectedFurnitureItem,
   handleFurnitureColorChange,
+  rotateSelectedFurniture,
+  deleteSelectedFurniture,
   selectedTool,
   selectedWallId,
   drawingElements,
@@ -40,8 +42,28 @@ export default function RightPanel({
         </div>
       </div>
       {rightPanelOpen && (
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 scroll-panel">
           <div className="p-3 md:p-4 space-y-4">
+            {selectedFurnitureItem && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-400 mb-2">Selected Item</h3>
+                <div className="space-y-3">
+                  <p className="text-white text-sm font-medium">{selectedFurnitureItem.name}</p>
+                  <div className="flex items-center gap-2">
+                    <Input type="color" value={selectedFurnitureItem.color} onChange={(e) => handleFurnitureColorChange(selectedFurnitureItem.id, e.target.value)} className="w-10 h-10 p-1 bg-gray-800 border-gray-700" />
+                    <Input type="text" value={selectedFurnitureItem.color} onChange={(e) => handleFurnitureColorChange(selectedFurnitureItem.id, e.target.value)} className="flex-1 bg-gray-800 border-gray-700 text-white text-xs" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={rotateSelectedFurniture} className="flex-1 bg-transparent">
+                      <RotateCw className="h-4 w-4 mr-1" />Rotate
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={deleteSelectedFurniture} className="flex-1 bg-transparent">
+                      <Trash2 className="h-4 w-4 mr-1" />Delete
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-2">Furniture Catalog</h3>
               <div className="mb-3">
@@ -81,18 +103,7 @@ export default function RightPanel({
               )}
             </div>
             <Separator />
-            {selectedFurnitureItem && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Selected Item</h3>
-                <div className="space-y-3">
-                  <p className="text-white text-sm font-medium">{selectedFurnitureItem.name}</p>
-                  <div className="flex items-center gap-2">
-                    <Input type="color" value={selectedFurnitureItem.color} onChange={(e) => handleFurnitureColorChange(selectedFurnitureItem.id, e.target.value)} className="w-10 h-10 p-1 bg-gray-800 border-gray-700" />
-                    <Input type="text" value={selectedFurnitureItem.color} onChange={(e) => handleFurnitureColorChange(selectedFurnitureItem.id, e.target.value)} className="flex-1 bg-gray-800 border-gray-700 text-white text-xs" />
-                  </div>
-                </div>
-              </div>
-            )}
+            
             {selectedTool === 'select' && selectedWallId && (
               <>
                 <Separator />
