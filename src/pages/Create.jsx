@@ -41,7 +41,7 @@ function FileDialog({ isOpen, onClose, onNew, onOpen }) {
   )
 }
 
-function FurnitureModel({ item, isSelected, onSelect, onPositionChange }) {
+function FurnitureModel({ item, isSelected, onSelect, onPositionChange, onDragStateChange }) {
   const meshRef = useRef(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -137,6 +137,7 @@ function FurnitureModel({ item, isSelected, onSelect, onPositionChange }) {
   const handlePointerDown = (event) => {
     event?.stopPropagation?.()
     setIsDragging(true)
+    onDragStateChange?.(true)
     onSelect()
   }
   const handlePointerMove = (event) => {
@@ -146,7 +147,7 @@ function FurnitureModel({ item, isSelected, onSelect, onPositionChange }) {
       onPositionChange(newPosition)
     }
   }
-  const handlePointerUp = () => setIsDragging(false)
+  const handlePointerUp = () => { setIsDragging(false); onDragStateChange?.(false) }
 
   return (
     <group
@@ -168,7 +169,14 @@ function FurnitureModel({ item, isSelected, onSelect, onPositionChange }) {
   )
 }
 
-function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurniturePositionChange, drawingElements, gridVisible }) {
+function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurniturePositionChange, drawingElements, gridVisible, onAnyDragChange }) {
+  const controlsRef = useRef(null)
+  const handleDragStateChange = (dragging) => {
+    if (controlsRef.current) {
+      controlsRef.current.enabled = !dragging
+    }
+    onAnyDragChange?.(dragging)
+  }
   return (
     <>
       <ambientLight intensity={0.2} />
@@ -236,10 +244,10 @@ function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurn
         )
       })}
       {placedFurniture.map(item => (
-        <FurnitureModel key={item.id} item={item} isSelected={selectedFurniture === item.id} onSelect={() => onFurnitureSelect(item.id)} onPositionChange={(pos) => onFurniturePositionChange(item.id, pos)} />
+        <FurnitureModel key={item.id} item={item} isSelected={selectedFurniture === item.id} onSelect={() => onFurnitureSelect(item.id)} onPositionChange={(pos) => onFurniturePositionChange(item.id, pos)} onDragStateChange={handleDragStateChange} />
       ))}
       <ContactShadows position={[0, 0, 0]} opacity={0.35} scale={50} blur={2} far={10} />
-      <OrbitControls enablePan enableZoom enableRotate maxPolarAngle={Math.PI / 2} minDistance={5} maxDistance={50} />
+      <OrbitControls ref={controlsRef} enablePan enableZoom enableRotate maxPolarAngle={Math.PI / 2} minDistance={5} maxDistance={50} />
     </>
   )
 }
@@ -930,16 +938,7 @@ export default function Create() {
                 </div>
               </div>
               <Separator />
-              <div>
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Quick Room Templates</h3>
-                <p className="text-xs text-gray-500 mb-2">Click to load room layouts</p>
-                <div className="space-y-1">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs sm:text-sm" onClick={() => loadTemplate('living-dining-large')}><Home className="h-4 w-4 mr-2" />Living Room</Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs sm:text-sm" onClick={() => loadTemplate('master-bedroom')}><Bed className="h-4 w-4 mr-2" />Bedroom</Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs sm:text-sm" onClick={() => loadTemplate('open-kitchen-diner')}><ChefHat className="h-4 w-4 mr-2" />Kitchen</Button>
-                </div>
-              </div>
-              <Separator />
+              
               <div>
                 <h3 className="text-sm font-medium text-gray-400 mb-2">Templates</h3>
                 <div className="space-y-2">
@@ -964,17 +963,22 @@ export default function Create() {
           <Separator orientation="vertical" className="h-8" />
           <div className="flex items-center gap-2">
             <Button variant={gridVisible ? 'default' : 'outline'} size="default" onClick={() => setGridVisible(!gridVisible)} title="Toggle Grid"><Grid3X3 className="h-5 w-5" /></Button>
-            <Button variant={showMeasurements ? 'default' : 'outline'} size="default" onClick={() => setShowMeasurements(!showMeasurements)} title="Measurements"><Ruler className="h-5 w-5" /></Button>
+            {activeMode === '2D' && (
+              <Button variant={showMeasurements ? 'default' : 'outline'} size="default" onClick={() => setShowMeasurements(!showMeasurements)} title="Measurements"><Ruler className="h-5 w-5" /></Button>
+            )}
           </div>
-          <Separator orientation="vertical" className="h-8" />
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="default" onClick={() => setZoomLevel(z => Math.max(25, z - 25))} title="Zoom Out"><ZoomOut className="h-5 w-5" /></Button>
-            <span className="text-sm text-gray-400 min-w-[60px] text-center">{zoomLevel}%</span>
-            <Button variant="outline" size="default" onClick={() => setZoomLevel(z => Math.min(400, z + 25))} title="Zoom In"><ZoomIn className="h-5 w-5" /></Button>
-          </div>
+          {activeMode === '2D' && (
+            <>
+              <Separator orientation="vertical" className="h-8" />
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="default" onClick={() => setZoomLevel(z => Math.max(25, z - 25))} title="Zoom Out"><ZoomOut className="h-5 w-5" /></Button>
+                <span className="text-sm text-gray-400 min-w-[60px] text-center">{zoomLevel}%</span>
+                <Button variant="outline" size="default" onClick={() => setZoomLevel(z => Math.min(400, z + 25))} title="Zoom In"><ZoomIn className="h-5 w-5" /></Button>
+              </div>
+            </>
+          )}
           <div className="ml-auto flex items-center gap-2">
             <Button variant="outline" size="default" title="Save"><Save className="h-5 w-5" /></Button>
-            <Button variant="outline" size="default" title="Settings" className="hidden sm:flex"><Settings className="h-5 w-5" /></Button>
             <Button variant="outline" size="default" onClick={() => setShowFileDialog(true)}><span className="hidden md:inline">+ New</span><span className="md:hidden">New</span></Button>
             <Button className="bg-green-600 hover:bg-green-700" size="default" onClick={exportDesign}><Download className="h-5 w-5 mr-2" /><span className="hidden md:inline">Download</span></Button>
           </div>
@@ -1087,7 +1091,7 @@ export default function Create() {
                           {!['Seating', 'Tables', 'Lighting', 'Storage', 'Bedroom'].includes(item.category) && <Home className="h-6 w-6 text-gray-400 group-hover:text-green-400 transition-colors" />}
                         </div>
                         <p className="text-xs text-white font-medium truncate">{item.name}</p>
-                        <p className="text-[10px] text-gray-400">${item.price.toLocaleString()}</p>
+                        {/* price removed */}
                       </CardContent>
                     </DraggableCatalogCard>
                   ))}

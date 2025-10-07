@@ -229,3 +229,4 @@ export const templatesAPI = {
 };
 
 export default templatesAPI;
+

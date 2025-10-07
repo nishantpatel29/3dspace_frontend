@@ -1,7 +1,7 @@
 import axios from 'axios';
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -79,6 +79,8 @@ export const authAPI = {
         localStorage.setItem('token', token);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(user));
+        // Notify app about auth change
+        window.dispatchEvent(new Event('auth-changed'));
         
         return {
           success: true,
@@ -111,6 +113,8 @@ export const authAPI = {
         localStorage.setItem('token', token);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(user));
+        // Notify app about auth change
+        window.dispatchEvent(new Event('auth-changed'));
         
         return {
           success: true,
@@ -138,6 +142,8 @@ export const authAPI = {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
+      // Notify app about auth change
+      window.dispatchEvent(new Event('auth-changed'));
     }
   },
 
@@ -544,3 +550,4 @@ export const useAuth = () => {
 
 // Export the API instance for other API calls
 export default api;
+

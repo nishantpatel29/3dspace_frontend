@@ -28,12 +28,16 @@ export function Navigation() {
     checkAuth()
     
     // Listen for storage changes (when user logs in/out in another tab)
-    const handleStorageChange = () => {
-      checkAuth()
-    }
+    const handleStorageChange = () => { checkAuth() }
+    // Listen for in-app auth changes (login/logout/register)
+    const handleAuthChanged = () => { checkAuth() }
     
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+    window.addEventListener('auth-changed', handleAuthChanged)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('auth-changed', handleAuthChanged)
+    }
   }, [])
 
   const handleLogout = async () => {
@@ -101,8 +105,7 @@ export function Navigation() {
                 </>
               ) : (
                 <>
-                  <a href="#signin"><Button variant="ghost" className="text-gray-300 hover:text-green-400">Sign In</Button></a>
-                  <a href="#signup"><Button className="bg-green-600 hover:bg-green-700 glow-green-hover">Get Started</Button></a>
+                  <a href="#signin"><Button className="bg-green-600 hover:bg-green-700 glow-green-hover">Login</Button></a>
                 </>
               )}
             </div>
@@ -147,8 +150,7 @@ export function Navigation() {
                 </>
               ) : (
                 <>
-                  <a href="#signin" onClick={closeMenu}><Button variant="outline" className="w-full text-lg py-3 border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900">Sign In</Button></a>
-                  <a href="#signup" onClick={closeMenu}><Button className="w-full text-lg py-3 bg-green-600 hover:bg-green-700 glow-green-hover">Get Started</Button></a>
+                  <a href="#signin" onClick={closeMenu}><Button className="w-full text-lg py-3 bg-green-600 hover:bg-green-700 glow-green-hover">Login</Button></a>
                 </>
               )}
             </div>

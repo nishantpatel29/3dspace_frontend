@@ -386,3 +386,4 @@ When adding new API functions:
 3. Add JSDoc comments for better documentation
 4. Update this README with usage examples
 5. Test with the actual backend endpoints
+

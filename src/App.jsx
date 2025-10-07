@@ -232,7 +232,7 @@ export default function App() {
     <div className="dark bg-gray-900 text-gray-100 min-h-screen">
       <Navigation />
       {isCreate ? <Create /> : isPricing ? <Pricing /> : isSignin ? <Signin /> : isSignup ? <Signup /> : isAiTools ? <AiTools /> : <HomePage />}
-      <Footer />
+      {!isCreate && <Footer />}
       <ToastContainer
         position="top-right"
         autoClose={5000}

@@ -215,3 +215,4 @@ export const furnitureAPI = {
 };
 
 export default furnitureAPI;
+

@@ -125,19 +125,7 @@ export default function Signin() {
                 </div>
                 {errors.password && <p className="text-red-400 text-sm">{errors.password}</p>}
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <input 
-                    id="remember" 
-                    type="checkbox" 
-                    checked={formData.rememberMe}
-                    onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
-                    className="rounded border-gray-600 bg-gray-800 text-green-600 focus:ring-green-400" 
-                  />
-                  <Label htmlFor="remember" className="text-sm text-gray-400">Remember me</Label>
-                </div>
-                <a href="#forgot-password" className="text-sm text-green-400 hover:text-green-300">Forgot password?</a>
-              </div>
+              
               <Button 
                 type="submit" 
                 className="w-full bg-green-600 hover:bg-green-700 glow-green-hover" 

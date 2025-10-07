@@ -246,3 +246,4 @@ export const subscriptionsAPI = {
 };
 
 export default subscriptionsAPI;
+
