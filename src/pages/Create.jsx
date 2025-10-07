@@ -580,6 +580,136 @@ export default function Create() {
   
   const templates = useMemo(() => ([
     {
+      name: 'Tech Startup Office Floor',
+      description: 'Bright open-plan workspace with hot-desking, meeting pods, private offices, a kitchenette and a social lounge',
+      elements: [
+        // Outer perimeter walls (20m x 12m)
+        { id: 'ext-1', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: -10, y: -6 }, { x: 10, y: -6 }] },
+        { id: 'ext-2', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: 10, y: -6 }, { x: 10, y: 6 }] },
+        { id: 'ext-3', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: 10, y: 6 }, { x: -10, y: 6 }] },
+        { id: 'ext-4', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: -10, y: 6 }, { x: -10, y: -6 }] },
+    
+        // Divider: separates open workspace (left) from meeting/lounge/offices (right)
+        { id: 'int-1', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -2, y: -6 }, { x: -2, y: 6 }] },
+    
+        // Meeting pod enclosure (center-right)
+        { id: 'int-2', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: -1 }, { x: 3, y: 4 }] },
+        { id: 'int-2b', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: 4 }, { x: 7, y: 4 }] },
+        { id: 'int-2c', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 7, y: 4 }, { x: 7, y: -1 }] },
+    
+        // Private office cluster / server room divider
+        { id: 'int-3', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 6, y: -6 }, { x: 6, y: 0 }] },
+    
+        // Kitchenette short partition
+        { id: 'int-4', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 0, y: -2 }, { x: 3, y: -2 }] },
+    
+        // Phone booth divider (left side)
+        { id: 'int-5', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -9, y: 0 }, { x: -7, y: 0 }] }
+      ],
+      doors: [
+        // Main entrance (left wall)
+        { id: 'door-main', type: 'door', color: '#8B4513', width: 1.2, position: { x: -10, y: 0 }, wall: 'ext-4', direction: 'left' },
+    
+        // Passage to lounge/meeting corridor (through int-1)
+        { id: 'door-corridor', type: 'door', color: '#A0826D', width: 1, position: { x: -2, y: -2 }, wall: 'int-1', direction: 'right' },
+    
+        // Meeting pod entrance
+        { id: 'door-meeting', type: 'door', color: '#A0826D', width: 1, position: { x: 5, y: -1 }, wall: 'int-2c', direction: 'right' },
+    
+        // Private office door (right cluster)
+        { id: 'door-office', type: 'door', color: '#A0826D', width: 0.9, position: { x: 6, y: -3 }, wall: 'int-3', direction: 'down' },
+    
+        // Kitchenette access
+        { id: 'door-kitchen', type: 'door', color: '#8B4513', width: 0.9, position: { x: 1.5, y: -2 }, wall: 'int-4', direction: 'down' },
+    
+        // Phone booth door
+        { id: 'door-booth', type: 'door', color: '#A0826D', width: 0.8, position: { x: -8, y: 0 }, wall: 'int-5', direction: 'left' },
+    
+        // Balcony / terrace door (top wall)
+        { id: 'door-terrace', type: 'door', color: '#8B4513', width: 1.1, position: { x: 2, y: 6 }, wall: 'ext-3', direction: 'up' }
+      ],
+      furniture: [
+        // Open Hot-Desking (left side: -10 to -2, -6 to 6)
+        { id: `tso-hotdesk1-${Date.now()}-1`, name: 'Hot Desk', category: 'Tables', price: 499, color: '#263238', type: 'Desk', position: { x: -8.5, y: 0, z: -4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.6, y: 1, z: 0.9 } },
+        { id: `tso-chair1-${Date.now()}-2`, name: 'Task Chair', category: 'Seating', price: 299, color: '#37474F', type: 'Dining Chair', position: { x: -8.5, y: 0, z: -3.2 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } },
+    
+        { id: `tso-hotdesk2-${Date.now()}-3`, name: 'Hot Desk', category: 'Tables', price: 499, color: '#263238', type: 'Desk', position: { x: -5.5, y: 0, z: -4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.6, y: 1, z: 0.9 } },
+        { id: `tso-chair2-${Date.now()}-4`, name: 'Task Chair', category: 'Seating', price: 299, color: '#37474F', type: 'Dining Chair', position: { x: -5.5, y: 0, z: -3.2 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } },
+    
+        { id: `tso-hotdesk3-${Date.now()}-5`, name: 'Hot Desk', category: 'Tables', price: 499, color: '#263238', type: 'Desk', position: { x: -8.5, y: 0, z: -1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.6, y: 1, z: 0.9 } },
+        { id: `tso-chair3-${Date.now()}-6`, name: 'Task Chair', category: 'Seating', price: 299, color: '#37474F', type: 'Dining Chair', position: { x: -8.5, y: 0, z: -0.2 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } },
+    
+        { id: `tso-hotdesk4-${Date.now()}-7`, name: 'Hot Desk', category: 'Tables', price: 499, color: '#263238', type: 'Desk', position: { x: -5.5, y: 0, z: -1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.6, y: 1, z: 0.9 } },
+        { id: `tso-chair4-${Date.now()}-8`, name: 'Task Chair', category: 'Seating', price: 299, color: '#37474F', type: 'Dining Chair', position: { x: -5.5, y: 0, z: -0.2 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } },
+    
+        { id: `tso-hotdesk5-${Date.now()}-9`, name: 'Hot Desk', category: 'Tables', price: 499, color: '#263238', type: 'Desk', position: { x: -8.5, y: 0, z: 1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.6, y: 1, z: 0.9 } },
+        { id: `tso-chair5-${Date.now()}-10`, name: 'Task Chair', category: 'Seating', price: 299, color: '#37474F', type: 'Dining Chair', position: { x: -8.5, y: 0, z: 3.1 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } },
+    
+        { id: `tso-hotdesk6-${Date.now()}-11`, name: 'Hot Desk', category: 'Tables', price: 499, color: '#263238', type: 'Desk', position: { x: -5.5, y: 0, z: 1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.6, y: 1, z: 0.9 } },
+        { id: `tso-chair6-${Date.now()}-12`, name: 'Task Chair', category: 'Seating', price: 299, color: '#37474F', type: 'Dining Chair', position: { x: -5.5, y: 0, z: 3.1 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } },
+    
+        // Focus Pods / Phone Booths (top-left)
+        { id: `tso-pod1-${Date.now()}-13`, name: 'Focus Pod', category: 'Seating', price: 1299, color: '#37474F', type: 'Lounge Chair', position: { x: -9, y: 0, z: 4 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        { id: `tso-pod2-${Date.now()}-14`, name: 'Phone Booth', category: 'Storage', price: 799, color: '#455A64', type: 'Wardrobe', position: { x: -7.2, y: 0, z: 4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1.8, z: 0.9 } },
+    
+        // Social Lounge (right-top:  -2 to 10, 2 to 6)
+        { id: `tso-sofa-${Date.now()}-15`, name: 'Sectional Sofa', category: 'Seating', price: 2199, color: '#546E7A', type: 'Lounge Chair', position: { x: 4.5, y: 0, z: 4.2 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 2.6, y: 1, z: 1.1 } },
+        { id: `tso-coffee-${Date.now()}-16`, name: 'Coffee Table', category: 'Tables', price: 399, color: '#BDBDBD', type: 'Side Table', position: { x: 3.2, y: 0, z: 4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.4, y: 0.6, z: 0.9 } },
+        { id: `tso-armchair1-${Date.now()}-17`, name: 'Accent Chair', category: 'Seating', price: 399, color: '#1E88E5', type: 'Lounge Chair', position: { x: 6, y: 0, z: 4.6 }, rotation: { x: 0, y: -Math.PI / 6, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `tso-rug-${Date.now()}-18`, name: 'Area Rug', category: 'Decor', price: 699, color: '#E0E0E0', type: 'Coffee Table', position: { x: 4.5, y: 0, z: 3.6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 3.2, y: 0.1, z: 2.2 } },
+    
+        // Collaboration / Meeting Pod (center-right)
+        { id: `tso-conftable-${Date.now()}-19`, name: 'Meeting Table', category: 'Tables', price: 2699, color: '#4E342E', type: 'Side Table', position: { x: 5, y: 0, z: 1.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2.4, y: 1, z: 1.2 } },
+        { id: `tso-confchair1-${Date.now()}-20`, name: 'Conference Chair', category: 'Seating', price: 349, color: '#212121', type: 'Dining Chair', position: { x: 4, y: 0, z: 0.6 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
+        { id: `tso-confchair2-${Date.now()}-21`, name: 'Conference Chair', category: 'Seating', price: 349, color: '#212121', type: 'Dining Chair', position: { x: 6, y: 0, z: 0.6 }, rotation: { x: 0, y: -Math.PI / 6, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
+        { id: `tso-whiteboard-${Date.now()}-22`, name: 'Glass Whiteboard', category: 'Decor', price: 499, color: '#FAFAFA', type: 'Coffee Table', position: { x: 6.5, y: 1, z: 1.5 }, rotation: { x: 0, y: Math.PI / 2, z: Math.PI / 2 }, scale: { x: 1.8, y: 0.08, z: 1.1 } },
+    
+        // Private Offices (right-top & right-bottom)
+        { id: `tso-managerdesk1-${Date.now()}-23`, name: 'Manager Desk', category: 'Tables', price: 1899, color: '#3E2723', type: 'Desk', position: { x: 8.2, y: 0, z: 3.5 }, rotation: { x: 0, y: -Math.PI / 4, z: 0 }, scale: { x: 1.8, y: 1, z: 1.2 } },
+        { id: `tso-leatherchair1-${Date.now()}-24`, name: 'Leather Chair', category: 'Seating', price: 1199, color: '#5D4037', type: 'Lounge Chair', position: { x: 7.5, y: 0, z: 2.6 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `tso-bookcase1-${Date.now()}-25`, name: 'Bookcase', category: 'Storage', price: 799, color: '#4E342E', type: 'Bookshelf', position: { x: 9.2, y: 0, z: 5.2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.6, z: 0.6 } },
+    
+        { id: `tso-managerdesk2-${Date.now()}-26`, name: 'Corner Desk', category: 'Tables', price: 1699, color: '#424242', type: 'Desk', position: { x: 8.2, y: 0, z: -2.5 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1.6, y: 1, z: 1.2 } },
+        { id: `tso-leatherchair2-${Date.now()}-27`, name: 'Executive Chair', category: 'Seating', price: 1299, color: '#3E2723', type: 'Lounge Chair', position: { x: 7.2, y: 0, z: -3.1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `tso-bookcase2-${Date.now()}-28`, name: 'Low Cabinet', category: 'Storage', price: 599, color: '#616161', type: 'Dresser', position: { x: 9.0, y: 0, z: -1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.3, y: 1, z: 0.6 } },
+    
+        // Server / Storage Room (right-bottom near x=6, y between -6 and 0)
+        { id: `tso-server1-${Date.now()}-29`, name: 'Server Rack', category: 'Appliances', price: 2499, color: '#263238', type: 'Wardrobe', position: { x: 6.5, y: 0, z: -4 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 2, z: 0.7 } },
+        { id: `tso-storage1-${Date.now()}-30`, name: 'Supply Cabinet', category: 'Storage', price: 549, color: '#757575', type: 'Wardrobe', position: { x: 7.8, y: 0, z: -4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.3, z: 0.6 } },
+    
+        // Kitchenette / Café (center-bottom)
+        { id: `tso-kitchen-counter-${Date.now()}-31`, name: 'Kitchen Counter', category: 'Tables', price: 1299, color: '#795548', type: 'Desk', position: { x: 1.2, y: 0, z: -2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2.2, y: 1, z: 0.8 } },
+        { id: `tso-espresso-${Date.now()}-32`, name: 'Coffee Machine', category: 'Appliances', price: 599, color: '#9E9E9E', type: 'Side Table', position: { x: 1.2, y: 0.7, z: -2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 0.6, z: 0.5 } },
+        { id: `tso-barstool1-${Date.now()}-33`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#3E2723', type: 'Dining Chair', position: { x: 0, y: 0, z: -2 }, rotation: { x: 0, y: Math.PI / 8, z: 0 }, scale: { x: 0.8, y: 0.9, z: 0.8 } },
+        { id: `tso-barstool2-${Date.now()}-34`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#3E2723', type: 'Dining Chair', position: { x: 2.4, y: 0, z: -2 }, rotation: { x: 0, y: -Math.PI / 8, z: 0 }, scale: { x: 0.8, y: 0.9, z: 0.8 } },
+    
+        // Utilities & Amenities
+        { id: `tso-printer-${Date.now()}-35`, name: 'Printer Station', category: 'Appliances', price: 399, color: '#455A64', type: 'Side Table', position: { x: -3, y: 0, z: -3.8 }, rotation: { x: 0, y: -Math.PI / 2, z: 0 }, scale: { x: 0.7, y: 1, z: 0.6 } },
+        { id: `tso-locker1-${Date.now()}-36`, name: 'Personal Lockers', category: 'Storage', price: 699, color: '#616161', type: 'Wardrobe', position: { x: -1, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.8, z: 0.6 } },
+    
+        // Plants & Lighting
+        { id: `tso-plant1-${Date.now()}-37`, name: 'Tall Plant', category: 'Decor', price: 199, color: '#2E7D32', type: 'Floor Lamp', position: { x: -4, y: 0, z: 2.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.6, z: 0.7 } },
+        { id: `tso-plant2-${Date.now()}-38`, name: 'Desk Plant', category: 'Decor', price: 59, color: '#2E7D32', type: 'Table Lamp', position: { x: -6, y: 0, z: -5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.5, z: 0.4 } },
+    
+        // AV & Screens
+        { id: `tso-tv-${Date.now()}-39`, name: 'Meeting Display', category: 'Decor', price: 899, color: '#000000', type: 'Coffee Table', position: { x: 5, y: 1, z: 3 }, rotation: { x: 0, y: 0, z: Math.PI / 2 }, scale: { x: 1.8, y: 0.05, z: 1.1 } },
+    
+        // Extra seating for impromptu huddles
+        { id: `tso-stool1-${Date.now()}-40`, name: 'Mobile Stool', category: 'Seating', price: 129, color: '#FFB300', type: 'Dining Chair', position: { x: 2, y: 0, z: 1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 0.9, z: 0.6 } },
+        { id: `tso-stool2-${Date.now()}-41`, name: 'Mobile Stool', category: 'Seating', price: 129, color: '#FFB300', type: 'Dining Chair', position: { x: 2.8, y: 0, z: 1.6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 0.9, z: 0.6 } },
+    
+        // Decorative art
+        { id: `tso-art1-${Date.now()}-42`, name: 'Wall Mural', category: 'Decor', price: 799, color: '#1E88E5', type: 'Coffee Table', position: { x: -2.5, y: 1.2, z: 5 }, rotation: { x: 0, y: Math.PI / 2, z: Math.PI / 2 }, scale: { x: 2.2, y: 0.05, z: 1.2 } },
+    
+        // Emergency / utilities
+        { id: `tso-fireext-${Date.now()}-43`, name: 'Fire Extinguisher', category: 'Safety', price: 129, color: '#D32F2F', type: 'Floor Lamp', position: { x: -9.5, y: 0, z: -5.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.2, y: 0.6, z: 0.2 } },
+    
+        // Reception bench
+        { id: `tso-reception-${Date.now()}-44`, name: 'Reception Bench', category: 'Seating', price: 499, color: '#546E7A', type: 'Lounge Chair', position: { x: -9, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.8, y: 1, z: 0.9 } }
+      ]
+    }
+    ,
+    {
       name: 'Modern Family Residence',
       description: 'Spacious 4-bedroom home with open plan living areas',
       elements: [
