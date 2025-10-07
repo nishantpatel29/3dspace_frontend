@@ -580,6 +580,7 @@ export default function Create() {
   
   const templates = useMemo(() => ([
     {
+      id: 'tech-startup-office',
       name: 'Tech Startup Office Floor',
       description: 'Bright open-plan workspace with hot-desking, meeting pods, private offices, a kitchenette and a social lounge',
       elements: [
@@ -710,6 +711,7 @@ export default function Create() {
     }
     ,
     {
+      id: 'modern-family-residence',
       name: 'Modern Family Residence',
       description: 'Spacious 4-bedroom home with open plan living areas',
       elements: [
@@ -794,8 +796,104 @@ export default function Create() {
         { id: `mfr-bookshelf-${Date.now()}-41`, name: 'Bookshelf', category: 'Storage', price: 549, color: '#5D4037', type: 'Bookshelf', position: { x: -2.5, y: 0, z: 7.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.5, z: 0.7 } },
         { id: `mfr-toybox-${Date.now()}-42`, name: 'Storage Box', category: 'Storage', price: 199, color: '#FF7043', type: 'Coffee Table', position: { x: 2, y: 0, z: 7.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.6, z: 0.7 } }
       ]
+    },
+    {
+      id: 'eclipse-nightclub',
+      name: 'Eclipse Nightclub & Lounge',
+      description: 'Premium nightclub with VIP areas, dance floor, and cocktail lounge',
+      elements: [
+        // Outer perimeter walls (24m x 18m)
+        { id: 'ext-1', type: 'wall', color: '#1A1A1A', completed: true, points: [{ x: -12, y: -9 }, { x: 12, y: -9 }] },
+        { id: 'ext-2', type: 'wall', color: '#1A1A1A', completed: true, points: [{ x: 12, y: -9 }, { x: 12, y: 9 }] },
+        { id: 'ext-3', type: 'wall', color: '#1A1A1A', completed: true, points: [{ x: 12, y: 9 }, { x: -12, y: 9 }] },
+        { id: 'ext-4', type: 'wall', color: '#1A1A1A', completed: true, points: [{ x: -12, y: 9 }, { x: -12, y: -9 }] },
+        
+        // Main bar separator
+        { id: 'int-1', type: 'wall', color: '#2A2A2A', completed: true, points: [{ x: -12, y: 3 }, { x: -6, y: 3 }] },
+        
+        // VIP section wall (right side)
+        { id: 'int-2', type: 'wall', color: '#2A2A2A', completed: true, points: [{ x: 6, y: -9 }, { x: 6, y: 9 }] },
+        
+        // DJ booth enclosure (back wall)
+        { id: 'int-3', type: 'wall', color: '#2A2A2A', completed: true, points: [{ x: -12, y: -4 }, { x: -8, y: -4 }] },
+        
+        // Lounge area separator
+        { id: 'int-4', type: 'wall', color: '#2A2A2A', completed: true, points: [{ x: -6, y: 3 }, { x: -6, y: 9 }] },
+        
+        // Private VIP room wall
+        { id: 'int-5', type: 'wall', color: '#2A2A2A', completed: true, points: [{ x: 6, y: 3 }, { x: 12, y: 3 }] },
+        
+        // Bathroom corridor wall
+        { id: 'int-6', type: 'wall', color: '#2A2A2A', completed: true, points: [{ x: 3, y: 9 }, { x: 3, y: 6 }] }
+      ],
+      furniture: [
+        // Main Dance Floor Area (center: -6 to 6, -9 to 3)
+        { id: `club-speaker1-${Date.now()}-1`, name: 'PA Speaker Stack', category: 'Audio', price: 4999, color: '#000000', type: 'Wardrobe', position: { x: -5.5, y: 0, z: -8.5 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1, y: 2, z: 1 } },
+        { id: `club-speaker2-${Date.now()}-2`, name: 'PA Speaker Stack', category: 'Audio', price: 4999, color: '#000000', type: 'Wardrobe', position: { x: 5.5, y: 0, z: -8.5 }, rotation: { x: 0, y: -Math.PI / 4, z: 0 }, scale: { x: 1, y: 2, z: 1 } },
+        { id: `club-subwoofer1-${Date.now()}-3`, name: 'Subwoofer', category: 'Audio', price: 2999, color: '#1A1A1A', type: 'Coffee Table', position: { x: -4, y: 0, z: -8.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1, z: 1.2 } },
+        { id: `club-subwoofer2-${Date.now()}-4`, name: 'Subwoofer', category: 'Audio', price: 2999, color: '#1A1A1A', type: 'Coffee Table', position: { x: 4, y: 0, z: -8.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1, z: 1.2 } },
+        { id: `club-laser1-${Date.now()}-5`, name: 'Laser Light System', category: 'Lighting', price: 6999, color: '#FF00FF', type: 'Floor Lamp', position: { x: 0, y: 2.5, z: -5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 0.8, z: 0.8 } },
+        { id: `club-smoke-${Date.now()}-6`, name: 'Smoke Machine', category: 'Effects', price: 1299, color: '#4A4A4A', type: 'Side Table', position: { x: -2, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 0.6, z: 0.5 } },
+        { id: `club-led1-${Date.now()}-7`, name: 'LED Panel Wall', category: 'Lighting', price: 8999, color: '#00FFFF', type: 'Coffee Table', position: { x: 0, y: 1.5, z: -8.8 }, rotation: { x: 0, y: 0, z: Math.PI / 2 }, scale: { x: 8, y: 0.1, z: 2 } },
+        { id: `club-barrier1-${Date.now()}-8`, name: 'Dance Floor Barrier', category: 'Furniture', price: 499, color: '#FFD700', type: 'Coffee Table', position: { x: -3, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.2, y: 1, z: 3 } },
+        { id: `club-barrier2-${Date.now()}-9`, name: 'Dance Floor Barrier', category: 'Furniture', price: 499, color: '#FFD700', type: 'Coffee Table', position: { x: 3, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.2, y: 1, z: 3 } },
+        { id: `club-podium1-${Date.now()}-10`, name: 'Go-Go Platform', category: 'Furniture', price: 799, color: '#C0C0C0', type: 'Side Table', position: { x: -4, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        { id: `club-podium2-${Date.now()}-11`, name: 'Go-Go Platform', category: 'Furniture', price: 799, color: '#C0C0C0', type: 'Side Table', position: { x: 4, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        
+        // DJ Booth (back left: -12 to -8, -9 to -4)
+        { id: `club-djdesk-${Date.now()}-12`, name: 'DJ Console', category: 'Audio', price: 12999, color: '#1A1A1A', type: 'Desk', position: { x: -10, y: 0, z: -6.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2.5, y: 1.2, z: 1.5 } },
+        { id: `club-djchair-${Date.now()}-13`, name: 'DJ Chair', category: 'Seating', price: 599, color: '#000000', type: 'Dining Chair', position: { x: -10, y: 0, z: -5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `club-cdj1-${Date.now()}-14`, name: 'CDJ Deck', category: 'Audio', price: 2499, color: '#1A1A1A', type: 'Side Table', position: { x: -11, y: 0.7, z: -6.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 0.3, z: 0.5 } },
+        { id: `club-cdj2-${Date.now()}-15`, name: 'CDJ Deck', category: 'Audio', price: 2499, color: '#1A1A1A', type: 'Side Table', position: { x: -9, y: 0.7, z: -6.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 0.3, z: 0.5 } },
+        { id: `club-mixer-${Date.now()}-16`, name: 'DJ Mixer', category: 'Audio', price: 3999, color: '#2A2A2A', type: 'Side Table', position: { x: -10, y: 0.7, z: -6.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 0.3, z: 0.6 } },
+        { id: `club-monitor1-${Date.now()}-17`, name: 'Studio Monitor', category: 'Audio', price: 899, color: '#1A1A1A', type: 'Table Lamp', position: { x: -11.5, y: 1.3, z: -6.5 }, rotation: { x: 0, y: -Math.PI / 6, z: 0 }, scale: { x: 0.5, y: 0.6, z: 0.5 } },
+        { id: `club-monitor2-${Date.now()}-18`, name: 'Studio Monitor', category: 'Audio', price: 899, color: '#1A1A1A', type: 'Table Lamp', position: { x: -8.5, y: 1.3, z: -6.5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 0.5, y: 0.6, z: 0.5 } },
+        
+        // Main Bar (top left: -12 to -6, 3 to 9)
+        { id: `club-bar-${Date.now()}-19`, name: 'Main Bar Counter', category: 'Furniture', price: 15999, color: '#8B4513', type: 'Dresser', position: { x: -9, y: 0, z: 8.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 5, y: 1.1, z: 1.2 } },
+        { id: `club-barstool1-${Date.now()}-20`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#C70039', type: 'Dining Chair', position: { x: -11, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.2, z: 0.7 } },
+        { id: `club-barstool2-${Date.now()}-21`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#C70039', type: 'Dining Chair', position: { x: -10, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.2, z: 0.7 } },
+        { id: `club-barstool3-${Date.now()}-22`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#C70039', type: 'Dining Chair', position: { x: -9, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.2, z: 0.7 } },
+        { id: `club-barstool4-${Date.now()}-23`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#C70039', type: 'Dining Chair', position: { x: -8, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.2, z: 0.7 } },
+        { id: `club-barstool5-${Date.now()}-24`, name: 'Bar Stool', category: 'Seating', price: 249, color: '#C70039', type: 'Dining Chair', position: { x: -7, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.2, z: 0.7 } },
+        { id: `club-liquor-${Date.now()}-25`, name: 'Liquor Display', category: 'Storage', price: 2999, color: '#000000', type: 'Bookshelf', position: { x: -9, y: 0, z: 8.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 4.5, y: 1.8, z: 0.5 } },
+        { id: `club-icebin-${Date.now()}-26`, name: 'Ice Bin', category: 'Appliances', price: 1299, color: '#C0C0C0', type: 'Dresser', position: { x: -11.5, y: 0, z: 8.5 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.8, y: 0.9, z: 0.6 } },
+        { id: `club-fridge-${Date.now()}-27`, name: 'Beverage Cooler', category: 'Appliances', price: 2499, color: '#1A1A1A', type: 'Wardrobe', position: { x: -6.5, y: 0, z: 8.5 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.2, y: 1.3, z: 0.8 } },
+        { id: `club-neon1-${Date.now()}-28`, name: 'Neon Sign', category: 'Lighting', price: 1499, color: '#FF1493', type: 'Coffee Table', position: { x: -9, y: 2, z: 8.9 }, rotation: { x: 0, y: 0, z: Math.PI / 2 }, scale: { x: 2.5, y: 0.1, z: 0.8 } },
+        
+        // Lounge Area (center left: -6 to 3, 3 to 9)
+        { id: `club-booth1-${Date.now()}-29`, name: 'Curved Booth', category: 'Seating', price: 1899, color: '#4B0082', type: 'Lounge Chair', position: { x: -4, y: 0, z: 5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 2, y: 1.1, z: 1.5 } },
+        { id: `club-booth2-${Date.now()}-30`, name: 'Curved Booth', category: 'Seating', price: 1899, color: '#4B0082', type: 'Lounge Chair', position: { x: -1, y: 0, z: 5 }, rotation: { x: 0, y: -Math.PI / 6, z: 0 }, scale: { x: 2, y: 1.1, z: 1.5 } },
+        { id: `club-booth3-${Date.now()}-31`, name: 'Curved Booth', category: 'Seating', price: 1899, color: '#4B0082', type: 'Lounge Chair', position: { x: 2, y: 0, z: 5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, scale: { x: 2, y: 1.1, z: 1.5 } },
+        { id: `club-cocktail1-${Date.now()}-32`, name: 'Cocktail Table', category: 'Tables', price: 599, color: '#FFD700', type: 'Side Table', position: { x: -4, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.1, z: 0.8 } },
+        { id: `club-cocktail2-${Date.now()}-33`, name: 'Cocktail Table', category: 'Tables', price: 599, color: '#FFD700', type: 'Side Table', position: { x: -1, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.1, z: 0.8 } },
+        { id: `club-cocktail3-${Date.now()}-34`, name: 'Cocktail Table', category: 'Tables', price: 599, color: '#FFD700', type: 'Side Table', position: { x: 2, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.1, z: 0.8 } },
+        { id: `club-chandelier-${Date.now()}-35`, name: 'Crystal Chandelier', category: 'Lighting', price: 4999, color: '#FFFFFF', type: 'Floor Lamp', position: { x: -1.5, y: 2.5, z: 6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.5, z: 1.2 } },
+        { id: `club-plant1-${Date.now()}-36`, name: 'Palm Tree', category: 'Decor', price: 799, color: '#228B22', type: 'Floor Lamp', position: { x: -5.5, y: 0, z: 8.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 2.2, z: 0.8 } },
+        { id: `club-plant2-${Date.now()}-37`, name: 'Palm Tree', category: 'Decor', price: 799, color: '#228B22', type: 'Floor Lamp', position: { x: 2.5, y: 0, z: 8.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 2.2, z: 0.8 } },
+        
+        // VIP Section (right side: 6 to 12, -9 to 3)
+        { id: `club-vipbooth1-${Date.now()}-38`, name: 'VIP Booth', category: 'Seating', price: 3999, color: '#8B0000', type: 'Lounge Chair', position: { x: 9, y: 0, z: -6 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 2.5, y: 1.2, z: 1.8 } },
+        { id: `club-vipbooth2-${Date.now()}-39`, name: 'VIP Booth', category: 'Seating', price: 3999, color: '#8B0000', type: 'Lounge Chair', position: { x: 9, y: 0, z: -2 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 2.5, y: 1.2, z: 1.8 } },
+        { id: `club-vipbooth3-${Date.now()}-40`, name: 'VIP Booth', category: 'Seating', price: 3999, color: '#8B0000', type: 'Lounge Chair', position: { x: 9, y: 0, z: 1 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 2, y: 1.2, z: 1.8 } },
+        { id: `club-viptable1-${Date.now()}-41`, name: 'VIP Table', category: 'Tables', price: 1299, color: '#000000', type: 'Side Table', position: { x: 7.5, y: 0, z: -6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 0.8, z: 1.2 } },
+        { id: `club-viptable2-${Date.now()}-42`, name: 'VIP Table', category: 'Tables', price: 1299, color: '#000000', type: 'Side Table', position: { x: 7.5, y: 0, z: -2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 0.8, z: 1.2 } },
+        { id: `club-viptable3-${Date.now()}-43`, name: 'VIP Table', category: 'Tables', price: 1299, color: '#000000', type: 'Side Table', position: { x: 7.5, y: 0, z: 1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 0.8, z: 1 } },
+        { id: `club-champagne-${Date.now()}-44`, name: 'Champagne Cooler', category: 'Decor', price: 499, color: '#C0C0C0', type: 'Table Lamp', position: { x: 7.5, y: 0.5, z: -6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.6, z: 0.4 } },
+        { id: `club-ledstrip1-${Date.now()}-45`, name: 'LED Strip Lighting', category: 'Lighting', price: 799, color: '#9C27B0', type: 'Floor Lamp', position: { x: 11.8, y: 1, z: -4 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 8, y: 0.2, z: 0.2 } },
+        { id: `club-rope-${Date.now()}-46`, name: 'Velvet Rope Barrier', category: 'Furniture', price: 299, color: '#FFD700', type: 'Coffee Table', position: { x: 6.2, y: 0, z: -1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.15, y: 0.9, z: 2.5 } },
+        
+        // Private VIP Room (top right: 6 to 12, 3 to 9)
+        { id: `club-privsofa1-${Date.now()}-47`, name: 'Luxury Sofa', category: 'Seating', price: 5999, color: '#FFD700', type: 'Modern Sofa', position: { x: 9, y: 0, z: 6.5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 3, y: 1.2, z: 1.6 } },
+        { id: `club-privsofa2-${Date.now()}-48`, name: 'Luxury Armchair', category: 'Seating', price: 2499, color: '#FFD700', type: 'Lounge Chair', position: { x: 11.3, y: 0, z: 4.5 }, rotation: { x: 0, y: -Math.PI / 3, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        { id: `club-privsofa3-${Date.now()}-49`, name: 'Luxury Armchair', category: 'Seating', price: 2499, color: '#FFD700', type: 'Lounge Chair', position: { x: 6.7, y: 0, z: 4.5 }, rotation: { x: 0, y: Math.PI / 3, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+        { id: `club-privtable-${Date.now()}-50`, name: 'Glass Coffee Table', category: 'Tables', price: 1899, color: '#FFFFFF', type: 'Coffee Table', position: { x: 9, y: 0, z: 5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.5, y: 0.6, z: 1 } },
+        { id: `club-minibar-${Date.now()}-51`, name: 'Mini Bar', category: 'Storage', price: 3499, color: '#1A1A1A', type: 'Dresser', position: { x: 11.5, y: 0, z: 8 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.5, y: 1.1, z: 0.7 } },
+        { id: `club-tvscreen-${Date.now()}-52`, name: 'Large Screen TV', category: 'Electronics', price: 4999, color: '#000000', type: 'Coffee Table', position: { x: 6.2, y: 1.5, z: 6.5 }, rotation: { x: 0, y: Math.PI / 2, z: Math.PI / 2 }, scale: { x: 2.5, y: 0.1, z: 1.5 } },
+        { id: `club-sculpture-${Date.now()}-53`, name: 'Gold Sculpture', category: 'Decor', price: 2999, color: '#FFD700', type: 'Floor Lamp', position: { x: 7, y: 0, z: 8.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 1.4, z: 0.6 } }
+      ]
     }
- ,    
+  ,    
     {
       id: 'minimalist-studio',
       name: 'Minimalist Studio',
@@ -1104,11 +1202,13 @@ export default function Create() {
 
   const handleFurniturePositionChange = useCallback((id, position) => {
     setPlacedFurniture(prev => prev.map(item => item.id === id ? { ...item, position } : item))
-  }, [])
+    saveToHistory()
+  }, [saveToHistory])
 
   const handleFurniture2DPositionChange = useCallback((id, position) => {
     setPlacedFurniture(prev => prev.map(item => item.id === id ? { ...item, position } : item))
-  }, [])
+    saveToHistory()
+  }, [saveToHistory])
 
   const handleWallColorChange = useCallback((id, color) => {
     setDrawingElements(prev => prev.map(el => el.id === id ? { ...el, color } : el))
