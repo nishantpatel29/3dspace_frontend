@@ -531,7 +531,7 @@ export default function Create() {
   }, [])
   
   // UI State
-  const [activeMode, setActiveMode] = useState('2D')
+  const [activeMode, setActiveMode] = useState('3D')
   const [selectedTool, setSelectedTool] = useState('select')
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
@@ -579,6 +579,93 @@ export default function Create() {
   const currentTools = activeMode === '2D' ? tools2D : tools3D
   
   const templates = useMemo(() => ([
+    {
+      name: 'Modern Family Residence',
+      description: 'Spacious 4-bedroom home with open plan living areas',
+      elements: [
+        // Outer perimeter walls (20m x 16m)
+        { id: 'ext-1', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: -10, y: -8 }, { x: 10, y: -8 }] },
+        { id: 'ext-2', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: 10, y: -8 }, { x: 10, y: 8 }] },
+        { id: 'ext-3', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: 10, y: 8 }, { x: -10, y: 8 }] },
+        { id: 'ext-4', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: -10, y: 8 }, { x: -10, y: -8 }] },
+        
+        // Living/Dining separator
+        { id: 'int-1', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -10, y: 0 }, { x: -3, y: 0 }] },
+        
+        // Kitchen wall
+        { id: 'int-2', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -3, y: -8 }, { x: -3, y: 3 }] },
+        
+        // Hallway wall
+        { id: 'int-3', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: -8 }, { x: 3, y: 8 }] },
+        
+        // Master bedroom division
+        { id: 'int-4', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: 3 }, { x: 10, y: 3 }] },
+        
+        // Bathroom wall
+        { id: 'int-5', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: -3 }, { x: 10, y: -3 }] },
+        
+        // Guest bedroom division
+        { id: 'int-6', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -10, y: 3 }, { x: -3, y: 3 }] }
+      ],
+      furniture: [
+        // Living Room (bottom left: -10 to -3, -8 to 0)
+        { id: `mfr-sofa-${Date.now()}-1`, name: 'L-Shaped Sofa', category: 'Seating', price: 1899, color: '#4A5568', type: 'Modern Sofa', position: { x: -7, y: 0, z: -5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2, y: 1, z: 1.5 } },
+        { id: `mfr-coffee-${Date.now()}-2`, name: 'Coffee Table', category: 'Tables', price: 549, color: '#8B7355', type: 'Coffee Table', position: { x: -7, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1, z: 0.8 } },
+        { id: `mfr-armchair-${Date.now()}-3`, name: 'Accent Chair', category: 'Seating', price: 699, color: '#2D3748', type: 'Lounge Chair', position: { x: -5, y: 0, z: -5 }, rotation: { x: 0, y: -Math.PI / 2, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `mfr-tv-${Date.now()}-4`, name: 'TV Console', category: 'Storage', price: 799, color: '#1A202C', type: 'Dresser', position: { x: -9.5, y: 0, z: -1.5 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.8, y: 1, z: 0.6 } },
+        { id: `mfr-lamp1-${Date.now()}-5`, name: 'Floor Lamp', category: 'Lighting', price: 199, color: '#F59E0B', type: 'Floor Lamp', position: { x: -4.5, y: 0, z: -6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 1.8, z: 0.5 } },
+        
+        // Dining Area (top left: -10 to -3, 0 to 8)
+        { id: `mfr-dining-${Date.now()}-6`, name: 'Dining Table', category: 'Tables', price: 1299, color: '#5D4037', type: 'Side Table', position: { x: -6.5, y: 0, z: 5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.8, y: 1, z: 1.2 } },
+        { id: `mfr-chair1-${Date.now()}-7`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -7.5, y: 0, z: 4.5 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `mfr-chair2-${Date.now()}-8`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -7.5, y: 0, z: 5.5 }, rotation: { x: 0, y: -Math.PI / 4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `mfr-chair3-${Date.now()}-9`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -5.5, y: 0, z: 4.5 }, rotation: { x: 0, y: Math.PI * 3/4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `mfr-chair4-${Date.now()}-10`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -5.5, y: 0, z: 5.5 }, rotation: { x: 0, y: -Math.PI * 3/4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `mfr-buffet-${Date.now()}-11`, name: 'Sideboard', category: 'Storage', price: 899, color: '#4E342E', type: 'Dresser', position: { x: -9.5, y: 0, z: 5 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.5, y: 1, z: 0.6 } },
+        { id: `mfr-plant-${Date.now()}-12`, name: 'Potted Plant', category: 'Decor', price: 149, color: '#228B22', type: 'Floor Lamp', position: { x: -4, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 1.2, z: 0.6 } },
+        
+        // Kitchen (center left: -3 to 3, -8 to 3)
+        { id: `mfr-island-${Date.now()}-13`, name: 'Kitchen Island', category: 'Tables', price: 1799, color: '#ECEFF1', type: 'Side Table', position: { x: 0, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2.5, y: 1, z: 1.3 } },
+        { id: `mfr-stool1-${Date.now()}-14`, name: 'Bar Stool', category: 'Seating', price: 179, color: '#616161', type: 'Dining Chair', position: { x: -0.8, y: 0, z: -1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.1, z: 0.7 } },
+        { id: `mfr-stool2-${Date.now()}-15`, name: 'Bar Stool', category: 'Seating', price: 179, color: '#616161', type: 'Dining Chair', position: { x: 0.8, y: 0, z: -1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.1, z: 0.7 } },
+        { id: `mfr-fridge-${Date.now()}-16`, name: 'Refrigerator', category: 'Appliances', price: 1899, color: '#CFD8DC', type: 'Wardrobe', position: { x: -2.5, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1.6, z: 0.8 } },
+        { id: `mfr-counter-${Date.now()}-17`, name: 'Counter Cabinet', category: 'Storage', price: 999, color: '#90A4AE', type: 'Dresser', position: { x: 0, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.8, y: 1, z: 0.7 } },
+        { id: `mfr-pantry-${Date.now()}-18`, name: 'Pantry', category: 'Storage', price: 699, color: '#78909C', type: 'Wardrobe', position: { x: 2.5, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.4, z: 0.7 } },
+        { id: `mfr-table-${Date.now()}-19`, name: 'Breakfast Table', category: 'Tables', price: 449, color: '#A1887F', type: 'Side Table', position: { x: 0, y: 0, z: 1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+        { id: `mfr-bchair1-${Date.now()}-20`, name: 'Chair', category: 'Seating', price: 129, color: '#6D4C41', type: 'Dining Chair', position: { x: -0.7, y: 0, z: 1 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
+        { id: `mfr-bchair2-${Date.now()}-21`, name: 'Chair', category: 'Seating', price: 129, color: '#6D4C41', type: 'Dining Chair', position: { x: 0.7, y: 0, z: 1 }, rotation: { x: 0, y: -Math.PI / 2, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
+        
+        // Master Bedroom (top right: 3 to 10, 3 to 8)
+        { id: `mfr-kingbed-${Date.now()}-22`, name: 'King Bed', category: 'Bedroom', price: 2299, color: '#37474F', type: 'Bed Frame', position: { x: 6.5, y: 0, z: 6.5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 2.2, y: 1, z: 2 } },
+        { id: `mfr-nightstand1-${Date.now()}-23`, name: 'Nightstand', category: 'Tables', price: 349, color: '#6D4C41', type: 'Side Table', position: { x: 5, y: 0, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1, z: 0.6 } },
+        { id: `mfr-nightstand2-${Date.now()}-24`, name: 'Nightstand', category: 'Tables', price: 349, color: '#6D4C41', type: 'Side Table', position: { x: 8, y: 0, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1, z: 0.6 } },
+        { id: `mfr-lamp2-${Date.now()}-25`, name: 'Table Lamp', category: 'Lighting', price: 119, color: '#FFA726', type: 'Table Lamp', position: { x: 5, y: 0.6, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.6, z: 0.4 } },
+        { id: `mfr-lamp3-${Date.now()}-26`, name: 'Table Lamp', category: 'Lighting', price: 119, color: '#FFA726', type: 'Table Lamp', position: { x: 8, y: 0.6, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.6, z: 0.4 } },
+        { id: `mfr-dresser-${Date.now()}-27`, name: 'Dresser', category: 'Storage', price: 1299, color: '#4E342E', type: 'Dresser', position: { x: 9.5, y: 0, z: 4 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.5, y: 1.1, z: 0.8 } },
+        { id: `mfr-wardrobe-${Date.now()}-28`, name: 'Wardrobe', category: 'Storage', price: 1899, color: '#3E2723', type: 'Wardrobe', position: { x: 3.5, y: 0, z: 7.2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.6, z: 1 } },
+        { id: `mfr-bench-${Date.now()}-29`, name: 'Bench', category: 'Seating', price: 399, color: '#8D6E63', type: 'Coffee Table', position: { x: 6.5, y: 0, z: 4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.5, y: 0.7, z: 0.5 } },
+        
+        // Bathroom (center right: 3 to 10, -3 to 3)
+        { id: `mfr-bathtub-${Date.now()}-30`, name: 'Bathtub', category: 'Bathroom', price: 1599, color: '#FFFFFF', type: 'Bed Frame', position: { x: 9.2, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.8, y: 0.6, z: 0.9 } },
+        { id: `mfr-vanity-${Date.now()}-31`, name: 'Double Vanity', category: 'Bathroom', price: 1299, color: '#90A4AE', type: 'Dresser', position: { x: 6.5, y: 0, z: -2.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2, y: 1, z: 0.7 } },
+        { id: `mfr-toilet-${Date.now()}-32`, name: 'Toilet', category: 'Bathroom', price: 449, color: '#F5F5F5', type: 'Side Table', position: { x: 3.8, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.6, y: 0.7, z: 0.5 } },
+        { id: `mfr-shower-${Date.now()}-33`, name: 'Shower Unit', category: 'Bathroom', price: 899, color: '#E0E0E0', type: 'Wardrobe', position: { x: 5.5, y: 0, z: 2.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.2, z: 1 } },
+        
+        // Guest Bedroom 1 (bottom right: 3 to 10, -8 to -3)
+        { id: `mfr-queenbed-${Date.now()}-34`, name: 'Queen Bed', category: 'Bedroom', price: 1499, color: '#455A64', type: 'Bed Frame', position: { x: 6.5, y: 0, z: -6 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.8, y: 1, z: 1.7 } },
+        { id: `mfr-nightstand3-${Date.now()}-35`, name: 'Side Table', category: 'Tables', price: 229, color: '#795548', type: 'Side Table', position: { x: 5.2, y: 0, z: -5.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 1, z: 0.5 } },
+        { id: `mfr-lamp4-${Date.now()}-36`, name: 'Lamp', category: 'Lighting', price: 99, color: '#FFB74D', type: 'Table Lamp', position: { x: 5.2, y: 0.6, z: -5.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.5, z: 0.4 } },
+        { id: `mfr-desk1-${Date.now()}-37`, name: 'Writing Desk', category: 'Tables', price: 649, color: '#607D8B', type: 'Desk', position: { x: 9.2, y: 0, z: -6 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.3, y: 1, z: 0.8 } },
+        { id: `mfr-deskchair-${Date.now()}-38`, name: 'Desk Chair', category: 'Seating', price: 279, color: '#546E7A', type: 'Dining Chair', position: { x: 9.2, y: 0, z: -5.2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
+        
+        // Guest Bedroom 2 (top center: -3 to 3, 3 to 8) 
+        { id: `mfr-twinbed-${Date.now()}-39`, name: 'Twin Bed', category: 'Bedroom', price: 799, color: '#546E7A', type: 'Bed Frame', position: { x: 0, y: 0, z: 6.5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.2, y: 1, z: 1.5 } },
+        { id: `mfr-nightstand4-${Date.now()}-40`, name: 'Small Table', category: 'Tables', price: 179, color: '#8D6E63', type: 'Side Table', position: { x: 0.9, y: 0, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 1, z: 0.5 } },
+        { id: `mfr-bookshelf-${Date.now()}-41`, name: 'Bookshelf', category: 'Storage', price: 549, color: '#5D4037', type: 'Bookshelf', position: { x: -2.5, y: 0, z: 7.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.5, z: 0.7 } },
+        { id: `mfr-toybox-${Date.now()}-42`, name: 'Storage Box', category: 'Storage', price: 199, color: '#FF7043', type: 'Coffee Table', position: { x: 2, y: 0, z: 7.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.6, z: 0.7 } }
+      ]
+    }
+ ,    
     {
       id: 'minimalist-studio',
       name: 'Minimalist Studio',
@@ -773,95 +860,7 @@ export default function Create() {
         { id: `tmpl-goth9-${Date.now()}-9`, name: 'Chandelier', category: 'Lighting', price: 2199, color: '#1C1C1C', type: 'Floor Lamp', position: { x: 0, y: 2.3, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.4, y: 1.2, z: 1.4 } },
         { id: `tmpl-goth10-${Date.now()}-10`, name: 'Wrought Iron Side Table', category: 'Tables', price: 649, color: '#36454F', type: 'Side Table', position: { x: 4.5, y: 0, z: 2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1, z: 0.9 } }
       ]
-    },
-   {
-  name: 'Modern Family Residence',
-  description: 'Spacious 4-bedroom home with open plan living areas',
-  elements: [
-    // Outer perimeter walls (20m x 16m)
-    { id: 'ext-1', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: -10, y: -8 }, { x: 10, y: -8 }] },
-    { id: 'ext-2', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: 10, y: -8 }, { x: 10, y: 8 }] },
-    { id: 'ext-3', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: 10, y: 8 }, { x: -10, y: 8 }] },
-    { id: 'ext-4', type: 'wall', color: '#D6D6D6', completed: true, points: [{ x: -10, y: 8 }, { x: -10, y: -8 }] },
-    
-    // Living/Dining separator
-    { id: 'int-1', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -10, y: 0 }, { x: -3, y: 0 }] },
-    
-    // Kitchen wall
-    { id: 'int-2', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -3, y: -8 }, { x: -3, y: 3 }] },
-    
-    // Hallway wall
-    { id: 'int-3', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: -8 }, { x: 3, y: 8 }] },
-    
-    // Master bedroom division
-    { id: 'int-4', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: 3 }, { x: 10, y: 3 }] },
-    
-    // Bathroom wall
-    { id: 'int-5', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: 3, y: -3 }, { x: 10, y: -3 }] },
-    
-    // Guest bedroom division
-    { id: 'int-6', type: 'wall', color: '#E3E3E3', completed: true, points: [{ x: -10, y: 3 }, { x: -3, y: 3 }] }
-  ],
-  furniture: [
-    // Living Room (bottom left: -10 to -3, -8 to 0)
-    { id: `mfr-sofa-${Date.now()}-1`, name: 'L-Shaped Sofa', category: 'Seating', price: 1899, color: '#4A5568', type: 'Modern Sofa', position: { x: -7, y: 0, z: -5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2, y: 1, z: 1.5 } },
-    { id: `mfr-coffee-${Date.now()}-2`, name: 'Coffee Table', category: 'Tables', price: 549, color: '#8B7355', type: 'Coffee Table', position: { x: -7, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1, z: 0.8 } },
-    { id: `mfr-armchair-${Date.now()}-3`, name: 'Accent Chair', category: 'Seating', price: 699, color: '#2D3748', type: 'Lounge Chair', position: { x: -5, y: 0, z: -5 }, rotation: { x: 0, y: -Math.PI / 2, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-    { id: `mfr-tv-${Date.now()}-4`, name: 'TV Console', category: 'Storage', price: 799, color: '#1A202C', type: 'Dresser', position: { x: -9.5, y: 0, z: -1.5 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.8, y: 1, z: 0.6 } },
-    { id: `mfr-lamp1-${Date.now()}-5`, name: 'Floor Lamp', category: 'Lighting', price: 199, color: '#F59E0B', type: 'Floor Lamp', position: { x: -4.5, y: 0, z: -6 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 1.8, z: 0.5 } },
-    
-    // Dining Area (top left: -10 to -3, 0 to 8)
-    { id: `mfr-dining-${Date.now()}-6`, name: 'Dining Table', category: 'Tables', price: 1299, color: '#5D4037', type: 'Side Table', position: { x: -6.5, y: 0, z: 5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.8, y: 1, z: 1.2 } },
-    { id: `mfr-chair1-${Date.now()}-7`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -7.5, y: 0, z: 4.5 }, rotation: { x: 0, y: Math.PI / 4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-    { id: `mfr-chair2-${Date.now()}-8`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -7.5, y: 0, z: 5.5 }, rotation: { x: 0, y: -Math.PI / 4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-    { id: `mfr-chair3-${Date.now()}-9`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -5.5, y: 0, z: 4.5 }, rotation: { x: 0, y: Math.PI * 3/4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-    { id: `mfr-chair4-${Date.now()}-10`, name: 'Dining Chair', category: 'Seating', price: 249, color: '#424242', type: 'Dining Chair', position: { x: -5.5, y: 0, z: 5.5 }, rotation: { x: 0, y: -Math.PI * 3/4, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-    { id: `mfr-buffet-${Date.now()}-11`, name: 'Sideboard', category: 'Storage', price: 899, color: '#4E342E', type: 'Dresser', position: { x: -9.5, y: 0, z: 5 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.5, y: 1, z: 0.6 } },
-    { id: `mfr-plant-${Date.now()}-12`, name: 'Potted Plant', category: 'Decor', price: 149, color: '#228B22', type: 'Floor Lamp', position: { x: -4, y: 0, z: 7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 1.2, z: 0.6 } },
-    
-    // Kitchen (center left: -3 to 3, -8 to 3)
-    { id: `mfr-island-${Date.now()}-13`, name: 'Kitchen Island', category: 'Tables', price: 1799, color: '#ECEFF1', type: 'Side Table', position: { x: 0, y: 0, z: -3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2.5, y: 1, z: 1.3 } },
-    { id: `mfr-stool1-${Date.now()}-14`, name: 'Bar Stool', category: 'Seating', price: 179, color: '#616161', type: 'Dining Chair', position: { x: -0.8, y: 0, z: -1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.1, z: 0.7 } },
-    { id: `mfr-stool2-${Date.now()}-15`, name: 'Bar Stool', category: 'Seating', price: 179, color: '#616161', type: 'Dining Chair', position: { x: 0.8, y: 0, z: -1.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1.1, z: 0.7 } },
-    { id: `mfr-fridge-${Date.now()}-16`, name: 'Refrigerator', category: 'Appliances', price: 1899, color: '#CFD8DC', type: 'Wardrobe', position: { x: -2.5, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 1.6, z: 0.8 } },
-    { id: `mfr-counter-${Date.now()}-17`, name: 'Counter Cabinet', category: 'Storage', price: 999, color: '#90A4AE', type: 'Dresser', position: { x: 0, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.8, y: 1, z: 0.7 } },
-    { id: `mfr-pantry-${Date.now()}-18`, name: 'Pantry', category: 'Storage', price: 699, color: '#78909C', type: 'Wardrobe', position: { x: 2.5, y: 0, z: -7 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.8, y: 1.4, z: 0.7 } },
-    { id: `mfr-table-${Date.now()}-19`, name: 'Breakfast Table', category: 'Tables', price: 449, color: '#A1887F', type: 'Side Table', position: { x: 0, y: 0, z: 1 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-    { id: `mfr-bchair1-${Date.now()}-20`, name: 'Chair', category: 'Seating', price: 129, color: '#6D4C41', type: 'Dining Chair', position: { x: -0.7, y: 0, z: 1 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
-    { id: `mfr-bchair2-${Date.now()}-21`, name: 'Chair', category: 'Seating', price: 129, color: '#6D4C41', type: 'Dining Chair', position: { x: 0.7, y: 0, z: 1 }, rotation: { x: 0, y: -Math.PI / 2, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
-    
-    // Master Bedroom (top right: 3 to 10, 3 to 8)
-    { id: `mfr-kingbed-${Date.now()}-22`, name: 'King Bed', category: 'Bedroom', price: 2299, color: '#37474F', type: 'Bed Frame', position: { x: 6.5, y: 0, z: 6.5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 2.2, y: 1, z: 2 } },
-    { id: `mfr-nightstand1-${Date.now()}-23`, name: 'Nightstand', category: 'Tables', price: 349, color: '#6D4C41', type: 'Side Table', position: { x: 5, y: 0, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1, z: 0.6 } },
-    { id: `mfr-nightstand2-${Date.now()}-24`, name: 'Nightstand', category: 'Tables', price: 349, color: '#6D4C41', type: 'Side Table', position: { x: 8, y: 0, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.7, y: 1, z: 0.6 } },
-    { id: `mfr-lamp2-${Date.now()}-25`, name: 'Table Lamp', category: 'Lighting', price: 119, color: '#FFA726', type: 'Table Lamp', position: { x: 5, y: 0.6, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.6, z: 0.4 } },
-    { id: `mfr-lamp3-${Date.now()}-26`, name: 'Table Lamp', category: 'Lighting', price: 119, color: '#FFA726', type: 'Table Lamp', position: { x: 8, y: 0.6, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.6, z: 0.4 } },
-    { id: `mfr-dresser-${Date.now()}-27`, name: 'Dresser', category: 'Storage', price: 1299, color: '#4E342E', type: 'Dresser', position: { x: 9.5, y: 0, z: 4 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.5, y: 1.1, z: 0.8 } },
-    { id: `mfr-wardrobe-${Date.now()}-28`, name: 'Wardrobe', category: 'Storage', price: 1899, color: '#3E2723', type: 'Wardrobe', position: { x: 3.5, y: 0, z: 7.2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.2, y: 1.6, z: 1 } },
-    { id: `mfr-bench-${Date.now()}-29`, name: 'Bench', category: 'Seating', price: 399, color: '#8D6E63', type: 'Coffee Table', position: { x: 6.5, y: 0, z: 4.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1.5, y: 0.7, z: 0.5 } },
-    
-    // Bathroom (center right: 3 to 10, -3 to 3)
-    { id: `mfr-bathtub-${Date.now()}-30`, name: 'Bathtub', category: 'Bathroom', price: 1599, color: '#FFFFFF', type: 'Bed Frame', position: { x: 9.2, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 1.8, y: 0.6, z: 0.9 } },
-    { id: `mfr-vanity-${Date.now()}-31`, name: 'Double Vanity', category: 'Bathroom', price: 1299, color: '#90A4AE', type: 'Dresser', position: { x: 6.5, y: 0, z: -2.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 2, y: 1, z: 0.7 } },
-    { id: `mfr-toilet-${Date.now()}-32`, name: 'Toilet', category: 'Bathroom', price: 449, color: '#F5F5F5', type: 'Side Table', position: { x: 3.8, y: 0, z: 0 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, scale: { x: 0.6, y: 0.7, z: 0.5 } },
-    { id: `mfr-shower-${Date.now()}-33`, name: 'Shower Unit', category: 'Bathroom', price: 899, color: '#E0E0E0', type: 'Wardrobe', position: { x: 5.5, y: 0, z: 2.5 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.2, z: 1 } },
-    
-    // Guest Bedroom 1 (bottom right: 3 to 10, -8 to -3)
-    { id: `mfr-queenbed-${Date.now()}-34`, name: 'Queen Bed', category: 'Bedroom', price: 1499, color: '#455A64', type: 'Bed Frame', position: { x: 6.5, y: 0, z: -6 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.8, y: 1, z: 1.7 } },
-    { id: `mfr-nightstand3-${Date.now()}-35`, name: 'Side Table', category: 'Tables', price: 229, color: '#795548', type: 'Side Table', position: { x: 5.2, y: 0, z: -5.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.6, y: 1, z: 0.5 } },
-    { id: `mfr-lamp4-${Date.now()}-36`, name: 'Lamp', category: 'Lighting', price: 99, color: '#FFB74D', type: 'Table Lamp', position: { x: 5.2, y: 0.6, z: -5.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.4, y: 0.5, z: 0.4 } },
-    { id: `mfr-desk1-${Date.now()}-37`, name: 'Writing Desk', category: 'Tables', price: 649, color: '#607D8B', type: 'Desk', position: { x: 9.2, y: 0, z: -6 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.3, y: 1, z: 0.8 } },
-    { id: `mfr-deskchair-${Date.now()}-38`, name: 'Desk Chair', category: 'Seating', price: 279, color: '#546E7A', type: 'Dining Chair', position: { x: 9.2, y: 0, z: -5.2 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } },
-    
-    // Guest Bedroom 2 (top center: -3 to 3, 3 to 8) 
-    { id: `mfr-twinbed-${Date.now()}-39`, name: 'Twin Bed', category: 'Bedroom', price: 799, color: '#546E7A', type: 'Bed Frame', position: { x: 0, y: 0, z: 6.5 }, rotation: { x: 0, y: Math.PI, z: 0 }, scale: { x: 1.2, y: 1, z: 1.5 } },
-    { id: `mfr-nightstand4-${Date.now()}-40`, name: 'Small Table', category: 'Tables', price: 179, color: '#8D6E63', type: 'Side Table', position: { x: 0.9, y: 0, z: 5.8 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.5, y: 1, z: 0.5 } },
-    { id: `mfr-bookshelf-${Date.now()}-41`, name: 'Bookshelf', category: 'Storage', price: 549, color: '#5D4037', type: 'Bookshelf', position: { x: -2.5, y: 0, z: 7.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1.5, z: 0.7 } },
-    { id: `mfr-toybox-${Date.now()}-42`, name: 'Storage Box', category: 'Storage', price: 199, color: '#FF7043', type: 'Coffee Table', position: { x: 2, y: 0, z: 7.3 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.6, z: 0.7 } }
-  ]
-}
- 
-  ]))
+    },]))
 
 
   useEffect(() => {
