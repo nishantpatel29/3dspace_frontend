@@ -3,7 +3,7 @@ import { Navigation } from './components/Navigation'
 import { Footer } from './components/Footer'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
-import { ArrowRight, Cuboid as Cube, Palette, Sparkles, Share2, Brain, Camera, Wand2, Star } from 'lucide-react'
+import { ArrowRight, Cuboid as Cube, Palette, Sparkles, Share2, Brain, Wand2, Star, FolderOpen } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -12,19 +12,10 @@ import Pricing from './pages/Pricing'
 import Signin from './pages/Signin'
 import Signup from './pages/Signup'
 import AiTools from './pages/AiTools'
+import Blog from './pages/Blog'
 
 function HomePage() {
-  const [currentSlide, setCurrentSlide] = useState(0)
   const [stats, setStats] = useState({ users: 0, projects: 0, renders: 0 })
-
-  const showcaseProjects = [
-    { id: 1, title: 'Modern Living Room', category: 'Living Room', image: '' },
-    { id: 2, title: 'Cozy Bedroom', category: 'Bedroom', image: '' },
-    { id: 3, title: 'Minimalist Kitchen', category: 'Kitchen', image: '' },
-    { id: 4, title: 'Home Office', category: 'Office', image: '' },
-    { id: 5, title: 'Luxury Bathroom', category: 'Bathroom', image: '' },
-    { id: 6, title: "Kids Playroom", category: 'Kids Room', image: '' }
-  ]
 
   useEffect(() => {
     const duration = 2000
@@ -43,13 +34,6 @@ function HomePage() {
     }, increment)
     return () => clearInterval(timer)
   }, [])
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % showcaseProjects.length)
-    }, 4000)
-    return () => clearInterval(timer)
-  }, [showcaseProjects.length])
 
   return (
     <div className="pt-16">
@@ -116,7 +100,7 @@ function HomePage() {
             {[
               { icon: Brain, title: 'Smart Wizard', desc: 'Auto-generate room layouts based on dimensions and preferences' },
               { icon: Wand2, title: 'Design Generator', desc: 'Get AI-suggested furniture layouts and color schemes' },
-              { icon: Camera, title: 'Room Scan', desc: 'Upload a photo and convert it to an editable 3D model' }
+              { icon: Share2, title: 'Project Manager', desc: 'Organize, save, and manage all your design projects in one place' }
             ].map((tool, index) => (
               <Card key={index} className="glass-panel glow-green-hover transition-all duration-300 hover:scale-105">
                 <CardHeader>
@@ -125,7 +109,7 @@ function HomePage() {
                   <CardDescription className="text-gray-400 text-sm sm:text-base">{tool.desc}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <a href="#ai-tools"><Button className="w-full bg-green-600 hover:bg-green-700 text-sm sm:text-base">Try {tool.title}</Button></a>
+                  <a href={tool.title === 'Project Manager' ? '#create' : '#ai-tools'}><Button className="w-full bg-green-600 hover:bg-green-700 text-sm sm:text-base">Try {tool.title}</Button></a>
                 </CardContent>
               </Card>
             ))}
@@ -136,39 +120,24 @@ function HomePage() {
       <section className="py-16 sm:py-20 responsive-padding">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">See what others have <span className="text-green-400">created</span></h2>
-            <p className="text-lg sm:text-xl text-gray-400">Get inspired by amazing designs from our community</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Manage your <span className="text-green-400">projects</span> effortlessly</h2>
+            <p className="text-lg sm:text-xl text-gray-400">Organize, collaborate, and track all your design projects in one powerful workspace</p>
           </div>
-          <div className="block sm:hidden">
-            <div className="relative overflow-hidden rounded-lg">
-              <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                {showcaseProjects.map((project) => (
-                  <div key={project.id} className="w-full flex-shrink-0">
-                    <Card className="glass-panel mx-4">
-                      <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-800 relative" />
-                      <CardHeader>
-                        <CardTitle className="text-white text-lg">{project.title}</CardTitle>
-                        <CardDescription className="text-gray-400">{project.category}</CardDescription>
-                      </CardHeader>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-center mt-6 space-x-2">
-              {showcaseProjects.map((_, index) => (
-                <button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full transition-colors ${index === currentSlide ? 'bg-green-400' : 'bg-gray-600'}`} />
-              ))}
-            </div>
-          </div>
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {showcaseProjects.map((project) => (
-              <Card key={project.id} className="glass-panel overflow-hidden glow-green-hover transition-all duration-300 hover:scale-105">
-                <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-800" />
-                <CardHeader>
-                  <CardTitle className="text-white text-lg sm:text-xl">{project.title}</CardTitle>
-                  <CardDescription className="text-gray-400">{project.category}</CardDescription>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {[
+              { icon: FolderOpen, title: 'Save & Organize', desc: 'Save unlimited projects with custom names and descriptions. Access them anytime, anywhere.' },
+              { icon: Share2, title: 'Export & Share', desc: 'Export your designs as 3D models (.glb) or share project files with your team and clients.' },
+              { icon: Cube, title: 'Version Control', desc: 'Track changes with undo/redo history. Never lose your work with automatic session saving.' }
+            ].map((feature, index) => (
+              <Card key={index} className="glass-panel glow-green-hover transition-all duration-300 hover:scale-105">
+                <CardHeader className="text-center">
+                  <feature.icon className="h-10 w-10 sm:h-12 sm:h-12 text-green-400 mb-4 mx-auto" />
+                  <CardTitle className="text-white text-lg sm:text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="text-gray-400 text-sm sm:text-base">{feature.desc}</CardDescription>
                 </CardHeader>
+                <CardContent>
+                  <a href="#create"><Button className="w-full bg-green-600 hover:bg-green-700 text-sm sm:text-base">Get Started</Button></a>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -228,10 +197,11 @@ export default function App() {
   const isSignin = route === '#signin'
   const isSignup = route === '#signup'
   const isAiTools = route === '#ai-tools'
+  const isBlog = route === '#blog'
   return (
     <div className="dark bg-gray-900 text-gray-100 min-h-screen">
       <Navigation />
-      {isCreate ? <Create /> : isPricing ? <Pricing /> : isSignin ? <Signin /> : isSignup ? <Signup /> : isAiTools ? <AiTools /> : <HomePage />}
+      {isCreate ? <Create /> : isPricing ? <Pricing /> : isSignin ? <Signin /> : isSignup ? <Signup /> : isAiTools ? <AiTools /> : isBlog ? <Blog /> : <HomePage />}
       {!isCreate && <Footer />}
       <ToastContainer
         position="top-right"

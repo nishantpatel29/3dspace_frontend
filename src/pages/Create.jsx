@@ -11,12 +11,165 @@ import designFilesAPI from '../apis/designFiles'
 import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, Grid as DreiGrid, Box as DreiBox, Plane as DreiPlane, Environment, ContactShadows } from '@react-three/drei'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { authAPI } from '../apis/auth'
 import CreateToolbar from '../components/create/CreateToolbar'
 import LeftPanel from '../components/create/LeftPanel'
 import RightPanel from '../components/create/RightPanel'
+
+const GEMINI_MODEL_NAME = 'gemini-1.5-flash-latest'
+const GEMINI_API_VERSION = (import.meta.env?.VITE_GEMINI_API_VERSION || 'v1').trim().toLowerCase()
+const AI_RATE_LIMIT_WINDOW_MS = Number(import.meta.env?.VITE_GEMINI_RATE_WINDOW_MS ?? 60_000)
+const AI_RATE_LIMIT_MAX_CALLS = Number(import.meta.env?.VITE_GEMINI_RATE_MAX ?? 3)
+const AI_TOKEN_BUDGET = Number(import.meta.env?.VITE_GEMINI_TOKEN_BUDGET ?? 150_000)
+
+const clampNumber = (value, fallback = 0) => {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : fallback
+}
+
+const ensureVector3 = (value = {}, fallback = { x: 0, y: 0, z: 0 }, options = {}) => {
+  const { map2DtoZ = false, clampYTo = null } = options
+  const x = clampNumber(value?.x, fallback.x)
+  const computedY = clampNumber(value?.y, fallback.y)
+  const y = typeof clampYTo === 'number' ? clampYTo : computedY
+  const hasZ = typeof value?.z === 'number'
+  const zSource = hasZ ? value.z : map2DtoZ && typeof value?.y === 'number' ? value.y : fallback.z
+  const z = clampNumber(zSource, fallback.z)
+  return { x, y, z }
+}
+
+const normalizePoints = (points = []) => {
+  if (!Array.isArray(points)) return []
+  return points
+    .map(point => ({
+      x: clampNumber(point?.x, 0),
+      y: clampNumber(point?.y, 0),
+    }))
+    .filter(point => Number.isFinite(point.x) && Number.isFinite(point.y))
+}
+
+const extractJsonFromResponse = (text = '') => {
+  if (!text) throw new Error('AI response was empty')
+  const codeFence = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  const raw = codeFence ? codeFence[1] : text
+  const start = raw.indexOf('{')
+  const end = raw.lastIndexOf('}')
+  if (start === -1 || end === -1 || end <= start) throw new Error('Unable to find JSON in AI response')
+  const jsonString = raw.slice(start, end + 1)
+  return JSON.parse(jsonString)
+}
+
+const normalizeElementsFromAI = (elements = []) => {
+  const stamp = Date.now()
+  return elements
+    .filter(Boolean)
+    .map((element, index) => {
+      const normalized = {
+        id: element.id || `ai-element-${stamp}-${index}`,
+        type: element.type || 'wall',
+        points: normalizePoints(element.points),
+        color: element.color || '#D6D6D6',
+        completed: element.completed !== undefined ? !!element.completed : true,
+      }
+      if (element.wallId) normalized.wallId = element.wallId
+      if (typeof element.segmentIndex === 'number') normalized.segmentIndex = element.segmentIndex
+      if (typeof element.t === 'number') normalized.t = element.t
+      if (typeof element.width === 'number') normalized.width = element.width
+      if (typeof element.height === 'number') normalized.height = element.height
+      if (typeof element.sill === 'number') normalized.sill = element.sill
+      return normalized
+    })
+}
+
+const normalizeFurnitureFromAI = (items = []) => {
+  const stamp = Date.now()
+  return items
+    .filter(Boolean)
+    .map((item, index) => ({
+      id: item.id || `ai-furniture-${stamp}-${index}`,
+      name: item.name || `AI Furniture ${index + 1}`,
+      category: item.category || 'Decor',
+      price: clampNumber(item.price, 0),
+      color: item.color || '#888888',
+      type: item.type || 'Custom',
+      position: ensureVector3(item.position, { x: 0, y: 0, z: 0 }, { map2DtoZ: true, clampYTo: 0 }),
+      rotation: ensureVector3(item.rotation, { x: 0, y: 0, z: 0 }),
+      scale: ensureVector3(item.scale, { x: 1, y: 1, z: 1 }),
+    }))
+}
+
+const combineAIElements = (payload = {}) => {
+  const buckets = []
+  if (Array.isArray(payload.elements)) buckets.push(...payload.elements)
+  if (Array.isArray(payload.walls)) buckets.push(...payload.walls.map(w => ({ ...w, type: w.type || 'wall' })))
+  if (Array.isArray(payload.windows)) buckets.push(...payload.windows.map(w => ({ ...w, type: w.type || 'window' })))
+  if (Array.isArray(payload.doors)) buckets.push(...payload.doors.map(w => ({ ...w, type: w.type || 'door' })))
+  return buckets
+}
+
+const callGeminiModel = async (apiKey, instructions) => {
+  const modelPath = GEMINI_MODEL_NAME.startsWith('models/')
+    ? GEMINI_MODEL_NAME
+    : `models/${GEMINI_MODEL_NAME}`
+  const primaryVersion = GEMINI_API_VERSION === 'v1beta' ? 'v1beta' : 'v1'
+  const fallbackVersion = primaryVersion === 'v1' ? 'v1beta' : 'v1'
+  const versionsToTry = [primaryVersion]
+  if (fallbackVersion !== primaryVersion) versionsToTry.push(fallbackVersion)
+
+  let lastError = null
+  for (const version of versionsToTry) {
+    const endpoint = `https://generativelanguage.googleapis.com/${version}/${modelPath}:generateContent?key=${encodeURIComponent(apiKey)}`
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: instructions }],
+            },
+          ],
+          generationConfig: { temperature: 0.55, maxOutputTokens: 4096 },
+        }),
+      })
+
+      if (!response.ok) {
+        let details = ''
+        try {
+          const errorPayload = await response.json()
+          details = errorPayload?.error?.message || JSON.stringify(errorPayload)
+        } catch (err) {
+          details = response.statusText
+        }
+        const error = new Error(details || 'Gemini request failed.')
+        error.status = response.status
+        throw error
+      }
+
+      const payload = await response.json()
+      const text = payload?.candidates?.flatMap(c => c?.content?.parts || [])
+        ?.map(part => part?.text || '')
+        ?.join('\n')
+        ?.trim()
+
+      return {
+        text: text || '',
+        tokens: Number(payload?.usageMetadata?.totalTokenCount || 0),
+      }
+    } catch (error) {
+      lastError = error
+      if (error?.status !== 404 || version === fallbackVersion) {
+        break
+      }
+    }
+  }
+
+  throw lastError || new Error('Gemini request failed.')
+}
 
 // File Management Dialog
 function FileDialog({ isOpen, onClose, onNew, onOpen }) {
@@ -174,7 +327,7 @@ function FurnitureModel({ item, isSelected, onSelect, onPositionChange, onDragSt
   )
 }
 
-function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurniturePositionChange, drawingElements, gridVisible, onAnyDragChange }) {
+function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurniturePositionChange, drawingElements, gridVisible, onAnyDragChange, importedScene }) {
   const controlsRef = useRef(null)
   const handleDragStateChange = (dragging) => {
     if (controlsRef.current) {
@@ -188,11 +341,24 @@ function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurn
       <directionalLight position={[10, 15, 10]} intensity={0.6} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
       <pointLight position={[5, 8, 5]} intensity={0.2} />
       <Environment preset="city" background={false} />
-      <DreiPlane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]} receiveShadow>
-        <meshStandardMaterial color="#2a2a2a" roughness={1} metalness={0} />
-      </DreiPlane>
-      {gridVisible && <DreiGrid args={[100, 100]} position={[0, 0.002, 0]} />}
-      {drawingElements.filter(el => el.type === 'wall' && el.completed).map((wall, index) => (
+      {!importedScene && (
+        <>
+          <DreiPlane
+            args={[100, 100]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, 0.001, 0]}
+            receiveShadow
+            onPointerDown={(e) => {
+              e.stopPropagation()
+              onFurnitureSelect(null)
+            }}
+          >
+            <meshStandardMaterial color="#2a2a2a" roughness={1} metalness={0} />
+          </DreiPlane>
+          {gridVisible && <DreiGrid args={[100, 100]} position={[0, 0.002, 0]} />}
+        </>
+      )}
+      {!importedScene && drawingElements.filter(el => el.type === 'wall' && el.completed).map((wall, index) => (
         <group key={`wall-${index}`}>
           {wall.points.map((point, i) => {
             if (i === wall.points.length - 1) return null
@@ -209,7 +375,7 @@ function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurn
         </group>
       ))}
       {/* Windows as glass inserts */}
-      {drawingElements.filter(el => el.type === 'window').map((win, idx) => {
+      {!importedScene && drawingElements.filter(el => el.type === 'window').map((win, idx) => {
         const wall = drawingElements.find(w => w.id === win.wallId)
         if (!wall) return null
         const a = wall.points[win.segmentIndex]
@@ -230,7 +396,7 @@ function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurn
         )
       })}
       {/* Doors */}
-      {drawingElements.filter(el => el.type === 'door').map((door, idx) => {
+      {!importedScene && drawingElements.filter(el => el.type === 'door').map((door, idx) => {
         const wall = drawingElements.find(w => w.id === door.wallId)
         if (!wall) return null
         const a = wall.points[door.segmentIndex]
@@ -251,6 +417,9 @@ function Scene3D({ placedFurniture, selectedFurniture, onFurnitureSelect, onFurn
       {placedFurniture.map(item => (
         <FurnitureModel key={item.id} item={item} isSelected={selectedFurniture === item.id} onSelect={() => onFurnitureSelect(item.id)} onPositionChange={(pos) => onFurniturePositionChange(item.id, pos)} onDragStateChange={handleDragStateChange} />
       ))}
+      {importedScene && (
+        <primitive object={importedScene} />
+      )}
       <ContactShadows position={[0, 0, 0]} opacity={0.35} scale={50} blur={2} far={10} />
       <OrbitControls ref={controlsRef} enablePan enableZoom enableRotate maxPolarAngle={Math.PI / 2} minDistance={5} maxDistance={50} />
     </>
@@ -263,11 +432,12 @@ function ThreeContextBridge({ onReady }) {
   return null
 }
 
-function Canvas2D({ drawingElements, currentDrawing, selectedTool, gridVisible, zoomLevel, selectedWallId, placedFurniture, selectedFurniture, snapToGrid, showMeasurements, onCanvasClick, onCanvasDoubleClick, onWallSelect, onFurnitureSelect, onFurniture2DPositionChange }) {
+function Canvas2D({ drawingElements, currentDrawing, selectedTool, gridVisible, zoomLevel, selectedWallId, placedFurniture, selectedFurniture, snapToGrid, showMeasurements, onCanvasClick, onCanvasDoubleClick, onWallSelect, onFurnitureSelect, onFurniture2DPositionChange, onRoomDragPreview, onRoomDragComplete }) {
   const canvasRef = useRef(null)
   const [isDragging, setIsDragging] = useState(false)
   const [draggedFurniture, setDraggedFurniture] = useState(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [roomDragStart, setRoomDragStart] = useState(null)
 
   // Ensure canvas internal size matches displayed size for accurate coordinates
   useEffect(() => {
@@ -357,6 +527,11 @@ function Canvas2D({ drawingElements, currentDrawing, selectedTool, gridVisible, 
         const x = point.x * 20; const y = point.y * 20
         if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
       })
+      // For room preview, close the shape so the left edge is visible while dragging
+      if (selectedTool === 'room' && currentDrawing.length > 2) {
+        const first = currentDrawing[0]
+        ctx.lineTo(first.x * 20, first.y * 20)
+      }
       ctx.stroke()
       currentDrawing.forEach(point => { ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.arc(point.x * 20, point.y * 20, 3, 0, Math.PI * 2); ctx.fill() })
     }
@@ -432,6 +607,11 @@ function Canvas2D({ drawingElements, currentDrawing, selectedTool, gridVisible, 
 
   const handleMouseDown = (e) => {
     const point = getCanvasCoordinates(e)
+    if (selectedTool === 'room') {
+      setRoomDragStart(point)
+      onRoomDragPreview?.(point, point)
+      return
+    }
     if (selectedTool === 'select') {
       const furniture = hitTestFurniture(point)
       if (furniture) {
@@ -443,21 +623,37 @@ function Canvas2D({ drawingElements, currentDrawing, selectedTool, gridVisible, 
       }
       const wallId = hitTestWall(point)
       onWallSelect(wallId)
+      if (!wallId) {
+        // Clicked on empty space: clear selections
+        onFurnitureSelect(null)
+        onWallSelect(null)
+      }
     } else {
       onCanvasClick(e)
     }
   }
 
   const handleMouseMove = (e) => {
-    if (!isDragging || !draggedFurniture) return
     const point = getCanvasCoordinates(e)
+
+    if (roomDragStart && selectedTool === 'room') {
+      onRoomDragPreview?.(roomDragStart, point)
+      return
+    }
+
+    if (!isDragging || !draggedFurniture) return
     let newX = point.x - dragOffset.x
     let newZ = point.y - dragOffset.y
     if (snapToGrid) { newX = Math.round(newX * 2) / 2; newZ = Math.round(newZ * 2) / 2 }
     onFurniture2DPositionChange(draggedFurniture, { x: newX, y: 0, z: newZ })
   }
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
+    if (roomDragStart && selectedTool === 'room') {
+      const point = getCanvasCoordinates(e)
+      onRoomDragComplete?.(roomDragStart, point)
+      setRoomDragStart(null)
+    }
     setIsDragging(false)
     setDraggedFurniture(null)
   }
@@ -530,19 +726,34 @@ export default function Create() {
     }
   }, [])
   
+  // Load saved state from sessionStorage (clears when tab closes, persists on refresh)
+  const loadSavedState = () => {
+    try {
+      const saved = sessionStorage.getItem('designState')
+      if (saved) {
+        return JSON.parse(saved)
+      }
+    } catch (err) {
+      console.warn('Failed to load design from sessionStorage', err)
+    }
+    return null
+  }
+
+  const savedState = loadSavedState()
+
   // UI State
-  const [activeMode, setActiveMode] = useState('3D')
+  const [activeMode, setActiveMode] = useState(savedState?.activeMode || '3D')
   const [selectedTool, setSelectedTool] = useState('select')
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   
   // Drawing State
   const [snapToGrid, setSnapToGrid] = useState(true)
-  const [showMeasurements, setShowMeasurements] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState(100)
-  const [gridVisible, setGridVisible] = useState(true)
-  const [drawingElements, setDrawingElements] = useState([])
-  const [placedFurniture, setPlacedFurniture] = useState([])
+  const [showMeasurements, setShowMeasurements] = useState(savedState?.showMeasurements || false)
+  const [zoomLevel, setZoomLevel] = useState(savedState?.zoomLevel || 100)
+  const [gridVisible, setGridVisible] = useState(savedState?.gridVisible !== undefined ? savedState.gridVisible : true)
+  const [drawingElements, setDrawingElements] = useState(savedState?.drawingElements || [])
+  const [placedFurniture, setPlacedFurniture] = useState(savedState?.placedFurniture || [])
   const [selectedFurniture, setSelectedFurniture] = useState(null)
   const [selectedWallId, setSelectedWallId] = useState(null)
   const [isDrawing, setIsDrawing] = useState(false)
@@ -550,6 +761,10 @@ export default function Create() {
   const [history, setHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const threeCtxRef = useRef(null)
+  const aiRateRef = useRef({ timestamps: [], tokensUsed: 0 })
+  const [importedScene, setImportedScene] = useState(null)
+  const fileInputRef = useRef(null)
+  const isInitialMount = useRef(true)
 
   // Authentication check
   useEffect(() => {
@@ -557,23 +772,50 @@ export default function Create() {
       window.location.hash = '#signin'
     }
   }, [])
+
+  // Load currentFile from saved state
+  useEffect(() => {
+    if (savedState?.currentFile) {
+      setCurrentFile(savedState.currentFile)
+    }
+    // Mark initial mount as complete after a brief delay
+    setTimeout(() => {
+      isInitialMount.current = false
+    }, 100)
+  }, [])
+
+  // Save design to sessionStorage whenever it changes (but not on initial mount)
+  useEffect(() => {
+    if (isInitialMount.current) return
+    try {
+      const stateToSave = {
+        drawingElements,
+        placedFurniture,
+        currentFile,
+        zoomLevel,
+        gridVisible,
+        showMeasurements,
+        activeMode,
+      }
+      sessionStorage.setItem('designState', JSON.stringify(stateToSave))
+    } catch (err) {
+      console.warn('Failed to save design to sessionStorage', err)
+    }
+  }, [drawingElements, placedFurniture, currentFile, zoomLevel, gridVisible, showMeasurements, activeMode])
   
   // Catalog State
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [aiGenerating, setAiGenerating] = useState(false)
   
   
   // Enhanced tools for different modes
   const tools2D = [
-    { id: 'select', name: 'Select', icon: MousePointer, category: 'basic' },
     { id: 'wall', name: 'Wall', icon: Rectangle, category: 'drawing' },
-    { id: 'door', name: 'Door', icon: DoorOpen, category: 'drawing' },
-    { id: 'window', name: 'Window', icon: Square, category: 'drawing' },
     { id: 'room', name: 'Room', icon: Maximize, category: 'rooms' },
   ]
   
   const tools3D = [
-    { id: 'select', name: 'Select', icon: MousePointer, category: 'basic' },
   ]
   
   const currentTools = activeMode === '2D' ? tools2D : tools3D
@@ -1223,6 +1465,61 @@ export default function Create() {
     if (selectedFurniture) { setPlacedFurniture(prev => prev.map(item => item.id === selectedFurniture ? { ...item, rotation: { ...item.rotation, y: item.rotation.y + Math.PI / 4 } } : item)); saveToHistory() }
   }, [selectedFurniture, saveToHistory])
 
+  const makeRoomRectanglePoints = useCallback((start, end) => {
+    if (!start || !end) return []
+    const x1 = Math.min(start.x, end.x)
+    const x2 = Math.max(start.x, end.x)
+    const y1 = Math.min(start.y, end.y)
+    const y2 = Math.max(start.y, end.y)
+    return [
+      { x: x1, y: y1 },
+      { x: x2, y: y1 },
+      { x: x2, y: y2 },
+      { x: x1, y: y2 },
+    ]
+  }, [])
+
+  const handleRoomDragPreview = useCallback((start, end) => {
+    const points = makeRoomRectanglePoints(start, end)
+    setIsDrawing(true)
+    setCurrentDrawing(points)
+  }, [makeRoomRectanglePoints])
+
+  const handleRoomDragComplete = useCallback((start, end) => {
+    const points = makeRoomRectanglePoints(start, end)
+    if (points.length < 4) {
+      setIsDrawing(false)
+      setCurrentDrawing([])
+      return
+    }
+    const dx = points[1].x - points[0].x
+    const dy = points[2].y - points[1].y
+    if (Math.abs(dx) < 0.1 || Math.abs(dy) < 0.1) {
+      setIsDrawing(false)
+      setCurrentDrawing([])
+      return
+    }
+    const stamp = Date.now().toString()
+    const newRoom = {
+      id: Date.now().toString(),
+      type: 'room',
+      points,
+      color: '#00ff00',
+      completed: true,
+    }
+    // Also generate 4 wall segments around the room so it appears as walls in 3D
+    const wallsFromRoom = [
+      { id: `room-wall-top-${stamp}`, type: 'wall', color: '#D6D6D6', completed: true, points: [points[0], points[1]] },
+      { id: `room-wall-right-${stamp}`, type: 'wall', color: '#D6D6D6', completed: true, points: [points[1], points[2]] },
+      { id: `room-wall-bottom-${stamp}`, type: 'wall', color: '#D6D6D6', completed: true, points: [points[2], points[3]] },
+      { id: `room-wall-left-${stamp}`, type: 'wall', color: '#D6D6D6', completed: true, points: [points[3], points[0]] },
+    ]
+    setDrawingElements(prev => [...prev, newRoom, ...wallsFromRoom])
+    setIsDrawing(false)
+    setCurrentDrawing([])
+    saveToHistory()
+  }, [makeRoomRectanglePoints, saveToHistory])
+
   const undo = useCallback(() => {
     if (historyIndex > 0) { const prevState = history[historyIndex - 1]; if (prevState) { setDrawingElements(prevState.drawingElements || []); setPlacedFurniture(prevState.placedFurniture || []); setHistoryIndex(historyIndex - 1) } }
   }, [history, historyIndex])
@@ -1235,10 +1532,17 @@ export default function Create() {
     setPlacedFurniture([])
     setSelectedFurniture(null)
     setSelectedWallId(null)
+    setImportedScene(null)
     setIsDrawing(false)
     setCurrentDrawing([])
     setHistory([])
     setHistoryIndex(-1)
+    // Clear sessionStorage
+    try {
+      sessionStorage.removeItem('designState')
+    } catch (err) {
+      console.warn('Failed to clear sessionStorage', err)
+    }
   }, [])
 
   const loadTemplate = useCallback((templateId) => {
@@ -1250,6 +1554,7 @@ export default function Create() {
     setSelectedWallId(null)
     setIsDrawing(false)
     setCurrentDrawing([])
+    setImportedScene(null)
     setHistory([])
     setHistoryIndex(-1)
   }, [templates])
@@ -1257,41 +1562,178 @@ export default function Create() {
   const exportDesign = useCallback(() => {
     const tryExport = () => {
       const ctx = threeCtxRef.current
-      if (!ctx || !ctx.scene) return false
-      const exporter = new GLTFExporter()
-      exporter.parse(
-        ctx.scene,
-        (result) => {
-          let blob
-          if (result instanceof ArrayBuffer) {
-            blob = new Blob([result], { type: 'model/gltf-binary' })
-          } else {
-            const json = JSON.stringify(result)
-            blob = new Blob([json], { type: 'application/json' })
-          }
-          const url = URL.createObjectURL(blob)
-          const link = document.createElement('a')
-          link.href = url
-          link.download = `design-${Date.now()}.glb`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-          URL.revokeObjectURL(url)
-        },
-        (error) => { console.error('GLTF export error', error) },
-        { binary: true }
-      )
-      return true
+      if (!ctx || !ctx.scene) {
+        console.warn('No 3D scene available to export')
+        return false
+      }
+      try {
+        // Decide what to export: imported model only (if present), otherwise full scene
+        const sourceRoot = importedScene || ctx.scene
+
+        // Clone the root and strip unsupported texture image types
+        const exportScene = sourceRoot.clone(true)
+        if (!importedScene) {
+          // Only clear environment/background when exporting the full scene
+          exportScene.environment = null
+          exportScene.background = null
+        }
+
+        exportScene.traverse((obj) => {
+          if (!obj.isMesh || !obj.material) return
+          const materials = Array.isArray(obj.material) ? obj.material : [obj.material]
+          materials.forEach((mat) => {
+            if (!mat) return
+            ;['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'envMap', 'emissiveMap'].forEach((key) => {
+              const tex = mat[key]
+              if (!tex || !tex.image) return
+              const img = tex.image
+              const isValid =
+                (typeof HTMLImageElement !== 'undefined' && img instanceof HTMLImageElement) ||
+                (typeof HTMLCanvasElement !== 'undefined' && img instanceof HTMLCanvasElement) ||
+                (typeof ImageBitmap !== 'undefined' && img instanceof ImageBitmap) ||
+                (typeof OffscreenCanvas !== 'undefined' && img instanceof OffscreenCanvas)
+              if (!isValid) {
+                mat[key] = null
+              }
+            })
+          })
+        })
+
+        const exporter = new GLTFExporter()
+        exporter.parse(
+          exportScene,
+          (result) => {
+            let blob
+            if (result instanceof ArrayBuffer) {
+              blob = new Blob([result], { type: 'model/gltf-binary' })
+            } else {
+              const json = JSON.stringify(result)
+              blob = new Blob([json], { type: 'application/json' })
+            }
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `design-${Date.now()}.glb`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+            toast.success('Downloaded 3D model (.glb) to your browser downloads.')
+          },
+          (error) => {
+            console.error('GLTF export error', error)
+            toast.error('Export failed – see console for details.')
+          },
+          { binary: true }
+        )
+        return true
+      } catch (err) {
+        console.error('GLTF export threw', err)
+        toast.error('Export failed – see console for details.')
+        return false
+      }
     }
 
     if (tryExport()) return
     const prevMode = activeMode
     setActiveMode('3D')
     setTimeout(() => {
-      tryExport()
+      const ok = tryExport()
       setActiveMode(prevMode)
+      if (!ok) {
+        toast.error('Nothing to export. Try switching to 3D view first.')
+      }
     }, 350)
-  }, [activeMode])
+  }, [activeMode, importedScene])
+
+  const generateDesignWithAI = useCallback(async () => {
+    const envKey = import.meta.env?.VITE_GEMINI_API_KEY
+    const browserKey = typeof window !== 'undefined' ? window.__GEMINI_API_KEY : ''
+    const apiKey = (envKey || browserKey || '').trim()
+    if (!apiKey) {
+      toast.error('Add VITE_GEMINI_API_KEY to your frontend env before using AI generate.')
+      return
+    }
+    const rateState = aiRateRef.current
+    const now = Date.now()
+    rateState.timestamps = rateState.timestamps.filter((stamp) => now - stamp < AI_RATE_LIMIT_WINDOW_MS)
+    if (AI_RATE_LIMIT_MAX_CALLS > 0 && rateState.timestamps.length >= AI_RATE_LIMIT_MAX_CALLS) {
+      const nextResetMs = AI_RATE_LIMIT_WINDOW_MS - (now - rateState.timestamps[0])
+      const seconds = Math.max(1, Math.ceil(nextResetMs / 1000))
+      toast.error(`AI limit reached. Please wait ${seconds}s before generating again.`)
+      return
+    }
+    if (AI_TOKEN_BUDGET > 0 && rateState.tokensUsed >= AI_TOKEN_BUDGET) {
+      toast.error('AI token budget reached for this session. Increase VITE_GEMINI_TOKEN_BUDGET if needed.')
+      return
+    }
+    const defaultPrompt = 'Modern open office with lounge, meeting pod, and kitchenette (20m x 12m)'
+    const userInput = typeof window !== 'undefined'
+      ? window.prompt('Describe the space you want the AI to create', defaultPrompt)
+      : defaultPrompt
+    if (userInput === null) return
+    const promptText = (userInput || '').trim() || defaultPrompt
+    setAiGenerating(true)
+    rateState.timestamps.push(now)
+    try {
+      const instructions = `
+You are an expert interior designer creating parametric data for a CAD-like tool.
+Return STRICT JSON that matches:
+{
+  "elements": [
+    { "id": "ext-1", "type": "wall", "color": "#D6D6D6", "completed": true, "points": [{ "x": -10, "y": -6 }, { "x": 10, "y": -6 }] }
+  ],
+  "furniture": [
+    { "id": "f-1", "name": "Sectional Sofa", "category": "Seating", "type": "Modern Sofa", "color": "#546E7A", "position": { "x": -2, "y": 0, "z": 3 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 2, "y": 1, "z": 1 } }
+  ]
+}
+Rules:
+- Use meters and keep coordinates between -12 and 12.
+- Provide a closed loop of perimeter walls (at least four entries with matching endpoints) plus any helpful partitions.
+- Doors/windows must reference the wall they cut using { "wallId": "<wall id>", "segmentIndex": <index>, "t": <0-1> } and include width/height (meters). Windows also need sill height.
+- All walls should include "completed": true and at least two points.
+- Limit furniture to 20 items and keep y rotation only (x/z = 0).
+- Use descriptive hex colors (#RRGGBB).
+- No markdown, prose, or explanations—just raw JSON.
+Design brief: ${promptText}
+`
+      const { text: aiText, tokens } = await callGeminiModel(apiKey, instructions)
+      const parsed = extractJsonFromResponse(aiText || '')
+      const tokensUsed = Number(tokens || 0)
+      if (tokensUsed > 0) {
+        rateState.tokensUsed += tokensUsed
+        if (AI_TOKEN_BUDGET > 0 && rateState.tokensUsed >= AI_TOKEN_BUDGET) {
+          toast.warn('AI token budget exhausted after this run.')
+        }
+      }
+      const combinedElements = combineAIElements(parsed).slice(0, 120)
+      const sanitizedElements = normalizeElementsFromAI(combinedElements)
+      const rawFurniture = Array.isArray(parsed.furniture)
+        ? parsed.furniture
+        : Array.isArray(parsed.items)
+          ? parsed.items
+          : []
+      const sanitizedFurniture = normalizeFurnitureFromAI(rawFurniture).slice(0, 40)
+      if (!sanitizedElements.length && !sanitizedFurniture.length) {
+        throw new Error('AI response did not include usable elements.')
+      }
+      setDrawingElements(sanitizedElements)
+      setPlacedFurniture(sanitizedFurniture)
+      setSelectedFurniture(null)
+      setSelectedWallId(null)
+      setIsDrawing(false)
+      setCurrentDrawing([])
+      setHistory([{ drawingElements: sanitizedElements, placedFurniture: sanitizedFurniture }])
+      setHistoryIndex(0)
+      toast.success('AI generated a new layout.')
+    } catch (error) {
+      console.error('AI generation failed', error)
+      toast.error(error?.message || 'AI generation failed.')
+      rateState.timestamps = rateState.timestamps.filter((stamp) => stamp !== now)
+    } finally {
+      setAiGenerating(false)
+    }
+  }, [])
 
   // Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Shift+Z / Ctrl+Y (redo), Ctrl+D duplicate
   useEffect(() => {
@@ -1337,21 +1779,77 @@ export default function Create() {
     setSelectedWallId(null)
     setIsDrawing(false)
     setCurrentDrawing([])
+    setImportedScene(null)
     setHistory([])
     setHistoryIndex(-1)
     setShowFileDialog(false)
   }
 
   const handleOpenProject = () => {
-    // TODO: Implement file picker
-    console.log('Open project')
-    setShowFileDialog(false)
+    setShowOpenDialog(true)
+    fetchFilesList()
   }
+
+  const handleOpenFromDevice = useCallback(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }, [])
+
+  const handleImportFileChange = useCallback((event) => {
+    const file = event.target.files && event.target.files[0]
+    if (!file) return
+
+    const name = file.name.toLowerCase()
+    if (!name.endsWith('.glb') && !name.endsWith('.gltf')) {
+      toast.error('Please select a .glb or .gltf file.')
+      event.target.value = ''
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onerror = () => {
+      toast.error('Failed to read file.')
+      event.target.value = ''
+    }
+    reader.onload = () => {
+      try {
+        const arrayBuffer = reader.result
+        const loader = new GLTFLoader()
+        loader.parse(
+          arrayBuffer,
+          '',
+          (gltf) => {
+            setImportedScene(gltf.scene)
+            setShowOpenDialog(false)
+            toast.success('Imported 3D model from device.')
+          },
+          (err) => {
+            console.error('GLTF import error', err)
+            toast.error('Failed to load 3D file.')
+          }
+        )
+      } catch (err) {
+        console.error('GLTF import error', err)
+        toast.error('Failed to load 3D file.')
+      } finally {
+        event.target.value = ''
+      }
+    }
+    reader.readAsArrayBuffer(file)
+  }, [])
 
   const selectedFurnitureItem = placedFurniture.find(item => item.id === selectedFurniture)
 
   return (
     <DndProvider backend={HTML5Backend}>
+      <input
+        type="file"
+        accept=".glb,.gltf,model/gltf-binary,model/gltf+json"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleImportFileChange}
+      />
       <FileDialog 
         isOpen={showFileDialog} 
         onClose={() => setShowFileDialog(false)} 
@@ -1392,6 +1890,12 @@ export default function Create() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-[28rem] max-w-[90vw] mx-4">
             <h2 className="text-xl font-semibold text-white mb-4">Open Design</h2>
+            <div className="mb-4 flex justify-between items-center">
+              <span className="text-sm text-gray-300">Choose a saved design or import from your device.</span>
+              <Button size="sm" variant="outline" className="border-gray-700 text-gray-300" onClick={handleOpenFromDevice}>
+                From device
+              </Button>
+            </div>
             <div className="max-h-80 overflow-y-auto space-y-2">
               {filesLoading && (
                 <div className="text-gray-400 text-sm">Loading files...</div>
@@ -1501,6 +2005,8 @@ export default function Create() {
           onNewClick={() => { newDesign(); setCurrentFile({ id: null, name: 'Untitled' }) }}
           onOpenClick={() => { setShowOpenDialog(true); fetchFilesList() }}
           onExportClick={exportDesign}
+          onAIGenerateClick={generateDesignWithAI}
+          aiGenerating={aiGenerating}
         />
         <div className="flex-1 bg-gray-900 relative overflow-hidden">
           {activeMode === '2D' ? (
@@ -1540,6 +2046,8 @@ export default function Create() {
                 onWallSelect={setSelectedWallId}
                 onFurnitureSelect={setSelectedFurniture}
                 onFurniture2DPositionChange={handleFurniture2DPositionChange}
+                onRoomDragPreview={handleRoomDragPreview}
+                onRoomDragComplete={handleRoomDragComplete}
               />
             </div>
           ) : (
@@ -1550,7 +2058,8 @@ export default function Create() {
                 onFurnitureSelect={setSelectedFurniture} 
                 onFurniturePositionChange={handleFurniturePositionChange} 
                 drawingElements={drawingElements} 
-                gridVisible={gridVisible} 
+                gridVisible={gridVisible}
+                importedScene={importedScene}
               />
               <ThreeContextBridge onReady={(ctx) => { threeCtxRef.current = ctx }} />
             </Canvas>

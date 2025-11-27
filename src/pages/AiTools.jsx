@@ -7,7 +7,6 @@ export default function AiTools() {
   const tools = [
     { id: 1, name: 'Smart Wizard', description: 'Auto-generate room layouts based on dimensions and preferences', icon: Brain, features: ['Room size optimization', 'Furniture placement', 'Traffic flow analysis', 'Style matching'], badge: 'Most Popular', color: 'from-blue-600 to-purple-600' },
     { id: 2, name: 'Design Generator', description: 'Get AI-suggested furniture layouts and color schemes', icon: Wand2, features: ['Color palette generation', 'Furniture suggestions', 'Style coordination', 'Mood boards'], badge: 'New', color: 'from-green-600 to-teal-600' },
-    { id: 3, name: 'Room Scan', description: 'Upload a photo and convert it to an editable 3D model', icon: Camera, features: ['Photo to 3D conversion', 'Dimension detection', 'Furniture recognition', 'Instant modeling'], badge: 'Beta', color: 'from-orange-600 to-red-600' },
   ]
 
   return (

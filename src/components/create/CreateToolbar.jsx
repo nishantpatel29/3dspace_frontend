@@ -1,7 +1,7 @@
  import React from 'react'
- import { Button } from '../../components/ui/button'
- import { Separator } from '../../components/ui/separator'
- import { Grid3X3, ZoomIn, ZoomOut, Save, Download, Undo, Redo, Ruler } from 'lucide-react'
+import { Button } from '../../components/ui/button'
+import { Separator } from '../../components/ui/separator'
+import { Grid3X3, ZoomIn, ZoomOut, Download, Undo, Redo, Ruler, Sparkles } from 'lucide-react'
 
 export default function CreateToolbar({
   currentFile,
@@ -20,6 +20,8 @@ export default function CreateToolbar({
   onNewClick,
   onOpenClick,
   onExportClick,
+  onAIGenerateClick,
+  aiGenerating,
 }) {
   return (
     <div className="h-16 bg-gray-950 border-b border-gray-800 flex items-center px-4 gap-2 overflow-x-auto flex-shrink-0">
@@ -48,6 +50,10 @@ export default function CreateToolbar({
         </>
       )}
       <div className="ml-auto flex items-center gap-2">
+        <Button className="bg-purple-600 hover:bg-purple-500" size="default" onClick={onAIGenerateClick} disabled={aiGenerating}>
+          <Sparkles className="h-5 w-5 mr-2" />
+          {aiGenerating ? 'Generating…' : 'Generate with AI'}
+        </Button>
         <Button variant="outline" size="default" title="Save" onClick={onSaveClick}>Save</Button>
         <Button variant="outline" size="default" onClick={onNewClick}><span className="hidden md:inline">+ New</span><span className="md:hidden">New</span></Button>
         <Button variant="outline" size="default" onClick={onOpenClick}><span className="hidden md:inline">Open</span><span className="md:hidden">Open</span></Button>

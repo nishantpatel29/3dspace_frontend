@@ -1,14 +1,30 @@
- import React from 'react'
- import { Button } from '../../components/ui/button'
- import { ScrollArea } from '../../components/ui/scroll-area'
- import { Separator } from '../../components/ui/separator'
+import React from 'react'
+import { useDrag } from 'react-dnd'
+import { Button } from '../../components/ui/button'
+import { ScrollArea } from '../../components/ui/scroll-area'
+import { Separator } from '../../components/ui/separator'
 import { Search, Sofa, Table, Lamp, BookOpen, Bed, Home, RotateCw, Trash2 } from 'lucide-react'
- import { Input } from '../../components/ui/input'
- import { Card, CardContent } from '../../components/ui/card'
+import { Input } from '../../components/ui/input'
+import { CardContent } from '../../components/ui/card'
 
 function DraggableCatalogCard({ item, onAdd, children }) {
+  const [{ isDragging }, dragRef] = useDrag(() => ({
+    type: 'FURNITURE_ITEM',
+    item: { itemId: item.id },
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+    end: (_dragged, monitor) => {
+      if (!monitor.didDrop()) {
+        onAdd?.()
+      }
+    },
+  }), [item, onAdd])
+
   return (
-    <div className={`glass-panel cursor-pointer hover:border-green-400 transition-colors group`} onClick={onAdd}>
+    <div
+      ref={dragRef}
+      className={`glass-panel cursor-pointer hover:border-green-400 transition-colors group ${isDragging ? 'opacity-50' : ''}`}
+      onClick={onAdd}
+    >
       {children}
     </div>
   )
