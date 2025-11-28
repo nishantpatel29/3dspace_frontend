@@ -50,10 +50,10 @@ export default function CreateToolbar({
         </>
       )}
       <div className="ml-auto flex items-center gap-2">
-        <Button className="bg-purple-600 hover:bg-purple-500" size="default" onClick={onAIGenerateClick} disabled={aiGenerating}>
+        {/* <Button className="bg-purple-600 hover:bg-purple-500" size="default" onClick={onAIGenerateClick} disabled={aiGenerating}>
           <Sparkles className="h-5 w-5 mr-2" />
           {aiGenerating ? 'Generating…' : 'Generate with AI'}
-        </Button>
+        </Button> */}
         <Button variant="outline" size="default" title="Save" onClick={onSaveClick}>Save</Button>
         <Button variant="outline" size="default" onClick={onNewClick}><span className="hidden md:inline">+ New</span><span className="md:hidden">New</span></Button>
         <Button variant="outline" size="default" onClick={onOpenClick}><span className="hidden md:inline">Open</span><span className="md:hidden">Open</span></Button>
