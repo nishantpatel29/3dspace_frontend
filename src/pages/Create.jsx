@@ -811,6 +811,7 @@ export default function Create() {
   
   // Enhanced tools for different modes
   const tools2D = [
+    { id: 'select', name: 'Select', icon: MousePointer, category: 'basic' },
     { id: 'wall', name: 'Wall', icon: Rectangle, category: 'drawing' },
     { id: 'room', name: 'Room', icon: Maximize, category: 'rooms' },
   ]
